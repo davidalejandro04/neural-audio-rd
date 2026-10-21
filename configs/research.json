@@ -1,0 +1,13 @@
+{
+  "experiment": "synthetic_distortion_research",
+  "seed": 1337,
+  "data": {
+    "effect": "distortion", "sample_rate": 48000, "samples": 48000,
+    "sources": {"train": 60, "valid": 15, "test": 20}
+  },
+  "model": {"name": "conditional_tcn", "channels": 16, "dilations": [1, 2, 4, 8, 16], "fir_taps": 129},
+  "suite": ["conv1d", "tcn", "conditional_tcn", "gru", "hybrid_no_gru", "hybrid_no_fir", "hybrid"],
+  "training": {"epochs": 60, "segment_samples": 4096, "batch_size": 8, "learning_rate": 0.001, "spectral_weight": 0.1},
+  "evaluation": {"block_sizes": [64, 128, 256, 512], "audio_examples": 6},
+  "gates": {"max_esr": 0.1, "identity_esr_ratio": 0.8, "stream_max_error": 0.00001, "export_max_error": 0.00001, "p99_budget_fraction": 0.7}
+}

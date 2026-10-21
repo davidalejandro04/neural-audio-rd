@@ -1,0 +1,8 @@
+.git
+.venv
+.deps
+__pycache__
+runs
+exports
+data/raw
+data/processed

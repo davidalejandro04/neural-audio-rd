@@ -1,0 +1,13 @@
+{
+  "experiment": "synthetic_distortion_smoke",
+  "seed": 1337,
+  "data": {
+    "effect": "distortion", "sample_rate": 48000, "samples": 2048,
+    "sources": {"train": 8, "valid": 3, "test": 3}
+  },
+  "model": {"name": "conditional_tcn", "channels": 8, "dilations": [1, 2, 4], "fir_taps": 33},
+  "suite": ["conv1d", "tcn", "conditional_tcn", "gru", "hybrid_no_gru", "hybrid_no_fir", "hybrid"],
+  "training": {"epochs": 12, "segment_samples": 512, "batch_size": 8, "learning_rate": 0.003, "spectral_weight": 0.02},
+  "evaluation": {"block_sizes": [64, 128, 256, 512], "audio_examples": 3},
+  "gates": {"max_esr": 0.5, "identity_esr_ratio": 0.95, "stream_max_error": 0.00001, "export_max_error": 0.00001, "p99_budget_fraction": 0.7}
+}
