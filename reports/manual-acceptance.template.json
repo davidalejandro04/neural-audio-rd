@@ -1,0 +1,12 @@
+{
+  "scope": "Uncompleted human/external acceptance record. Fill from actual observations, not estimates.",
+  "preview_manifest_sha256": null,
+  "hosts": [
+    {"name": "Ableton Live", "version": null, "model": null, "sample_rate": 48000, "tested_block_sizes": [], "loaded_and_rendered": null, "saved_and_reopened": null, "bypass_and_latency_checked": null, "notes": ""},
+    {"name": "Audacity", "version": null, "model": null, "sample_rate": 48000, "tested_block_sizes": [], "loaded_and_rendered": null, "saved_and_reopened": null, "bypass_and_latency_checked": null, "notes": ""}
+  ],
+  "real_capture_evaluation": {"dataset_root": null, "source_license_and_provenance_verified": null, "alignment_inspected": null, "held_out_metrics_report": null},
+  "listening": {"anonymized_results": null, "independent_listeners": 0, "trials_per_listener": 0, "preregistered_group_analysis": null},
+  "runtime_internal_allocation_audit": {"method": null, "report": null, "passed": null},
+  "production_ready": false
+}

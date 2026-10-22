@@ -11,7 +11,7 @@ from neural_fx.data import read_audio, records
 from neural_fx.listening import package_abx, score_abx
 from neural_fx.models import AudioModel
 from neural_fx.prepare import prepare_pairs
-from neural_fx.runtime import export_onnx
+from neural_fx.runtime import benchmark_onnx, export_onnx
 from neural_fx.utils import read_json
 
 
@@ -68,8 +68,10 @@ def test_abx_package_and_exact_scoring(tmp_path):
 
 
 @pytest.mark.skipif(any(importlib.util.find_spec(name) is None for name in ("onnx", "onnxscript", "onnxruntime")), reason="Install the export extra")
-def test_stateful_onnx_export_parity(tmp_path):
+@pytest.mark.parametrize("name", ["conditional_tcn", "hybrid_no_gru"])
+def test_stateful_onnx_export_parity(tmp_path, name):
     config = read_json("configs/smoke.json")
+    config["model"]["name"] = name
     model = AudioModel(**config["model"])
     checkpoint = tmp_path / "test.pt"
     torch.save({"model_spec": config["model"], "config": config, "state_dict": model.state_dict()}, checkpoint)
@@ -77,9 +79,23 @@ def test_stateful_onnx_export_parity(tmp_path):
     assert exported["passed"] and exported["max_error"] < 1e-5
     golden = np.load(tmp_path / "test.golden.npz")
     assert golden["audio"].shape == golden["expected"].shape == (12, 1, 1, 64)
+    golden.close()
+    report = benchmark_onnx(tmp_path / "test.onnx", tmp_path / "runtime.json", 20, checkpoint)
+    assert report["golden_max_error"] < 1e-5
+    assert report["onnx"]["block_size"] == 64
+    assert report["onnx"]["p99_ms"] > 0 and report["pytorch"]["p99_ms"] > 0
+    assert report["providers"] == ["CPUExecutionProvider"]
+    assert report["simulated_audio_seconds"] == pytest.approx(20 * 64 / 48000)
+    assert not report["production_ready"]
+    with pytest.raises(ValueError, match="overwrite"):
+        benchmark_onnx(tmp_path / "test.onnx", tmp_path / "test.json", 20)
+    with (tmp_path / "test.onnx").open("ab") as handle:
+        handle.write(b"corruption")
+    with pytest.raises(ValueError, match="checksum"):
+        benchmark_onnx(tmp_path / "test.onnx", tmp_path / "corrupt-runtime.json", 20)
 
 
-def test_gru_export_rejects_hidden_state_reset(tmp_path):
+def test_gru_export_retains_hidden_state(tmp_path):
     pytest.importorskip("onnx")
     pytest.importorskip("onnxruntime")
     config = read_json("configs/smoke.json")
@@ -87,5 +103,6 @@ def test_gru_export_rejects_hidden_state_reset(tmp_path):
     model = AudioModel(**config["model"])
     path = tmp_path / "gru.pt"
     torch.save({"model_spec": config["model"], "config": config, "state_dict": model.state_dict()}, path)
-    with pytest.raises(ValueError, match="hidden-state"):
-        export_onnx(path, tmp_path / "gru.onnx")
+    result = export_onnx(path, tmp_path / "gru.onnx", 16)
+    assert result["passed"] and "hidden" in result["inputs"]
+    assert "next_hidden" in np.load(tmp_path / "gru.golden.npz")

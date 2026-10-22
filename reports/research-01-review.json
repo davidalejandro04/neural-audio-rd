@@ -1,0 +1,254 @@
+{
+  "run": "runs\\research-01",
+  "seed": 1337,
+  "effect": "distortion",
+  "config_sha256": "098dd7d49e5122c86528b06640c6e2aadbdfe711041e3e7396bb372386bad0ae",
+  "models": [
+    {
+      "model": "conditional_tcn",
+      "parameters": 4449,
+      "active_source_median": {
+        "mse": 0.00056969990878315,
+        "l1": 0.014965050294995308,
+        "esr": 0.0092936614228754,
+        "mrstft": 0.1634250644594431,
+        "lsd_db": 1.4528354823589325
+      },
+      "by_regime_pair_median": {
+        "held_out_controls": {
+          "mse": 0.0008357262413483113,
+          "l1": 0.02380281873047352,
+          "esr": 0.0199094277690837,
+          "mrstft": 0.29017433524131775,
+          "lsd_db": 1.9246981143951416
+        },
+        "seen_controls": {
+          "mse": 2.95401787298033e-05,
+          "l1": 0.004270978970453143,
+          "esr": 0.00038704622245914306,
+          "mrstft": 0.057950884103775024,
+          "lsd_db": 0.8466626107692719
+        }
+      },
+      "failed_checks": {},
+      "checkpoint_sha256": "a1353dea05bfdce6e2f3849bb57c7017d74285f825fee0fa9ed1d958a2f2d768"
+    },
+    {
+      "model": "conv1d",
+      "parameters": 833,
+      "active_source_median": {
+        "mse": 0.03265120189171285,
+        "l1": 0.12820535860955717,
+        "esr": 0.20547681340109714,
+        "mrstft": 1.1623601585626602,
+        "lsd_db": 7.021010911464691
+      },
+      "by_regime_pair_median": {
+        "held_out_controls": {
+          "mse": 0.00434997642878443,
+          "l1": 0.05448377877473831,
+          "esr": 0.10094791408802001,
+          "mrstft": 0.9178199172019958,
+          "lsd_db": 5.727673292160034
+        },
+        "seen_controls": {
+          "mse": 0.031699301674962044,
+          "l1": 0.15743794292211533,
+          "esr": 0.22853075717431037,
+          "mrstft": 1.3987010717391968,
+          "lsd_db": 8.4971022605896
+        }
+      },
+      "failed_checks": {
+        "quality_esr": {
+          "passed": false,
+          "observed": 0.20547681340109714,
+          "maximum": 0.1
+        }
+      },
+      "checkpoint_sha256": "e2ee0ded964a5dfe1d6e6e32051a765cc1116b2224e85e146dc3a83297d3d345"
+    },
+    {
+      "model": "gru",
+      "parameters": 1025,
+      "active_source_median": {
+        "mse": 0.0023895749672192324,
+        "l1": 0.030300449719652532,
+        "esr": 0.019098289410257735,
+        "mrstft": 0.3506241478025913,
+        "lsd_db": 3.052082115411759
+      },
+      "by_regime_pair_median": {
+        "held_out_controls": {
+          "mse": 0.0011746786767616868,
+          "l1": 0.025829588063061237,
+          "esr": 0.02933891975006331,
+          "mrstft": 0.4360227584838867,
+          "lsd_db": 3.3827093839645386
+        },
+        "seen_controls": {
+          "mse": 0.0011690995597746223,
+          "l1": 0.02064878772944212,
+          "esr": 0.01052447401704347,
+          "mrstft": 0.23540101200342178,
+          "lsd_db": 2.720796823501587
+        }
+      },
+      "failed_checks": {
+        "runtime_screening": {
+          "passed": false,
+          "observed": 1.2755266875,
+          "maximum": 0.7
+        }
+      },
+      "checkpoint_sha256": "972e4fe05013410ad8cc16381264288a224743db0fc74fdde70b0168167ecdfc"
+    },
+    {
+      "model": "hybrid",
+      "parameters": 6011,
+      "active_source_median": {
+        "mse": 0.0060389686959752,
+        "l1": 0.0509738874156028,
+        "esr": 0.13586005796764045,
+        "mrstft": 0.36373809948563574,
+        "lsd_db": 2.0694872438907623
+      },
+      "by_regime_pair_median": {
+        "held_out_controls": {
+          "mse": 0.014616913627833128,
+          "l1": 0.1138741709291935,
+          "esr": 0.33689551398223466,
+          "mrstft": 0.8320177793502808,
+          "lsd_db": 3.6930861473083496
+        },
+        "seen_controls": {
+          "mse": 4.8151596274692565e-05,
+          "l1": 0.005615271627902985,
+          "esr": 0.0005727892008077064,
+          "mrstft": 0.06063963659107685,
+          "lsd_db": 0.8661133944988251
+        }
+      },
+      "failed_checks": {
+        "quality_esr": {
+          "passed": false,
+          "observed": 0.13586005796764045,
+          "maximum": 0.1
+        },
+        "runtime_screening": {
+          "passed": false,
+          "observed": 1.702647,
+          "maximum": 0.7
+        }
+      },
+      "checkpoint_sha256": "0e05b10ae41897c3f709370fa0a700e3ce224342d79c96c4633ac7987b55f1f7"
+    },
+    {
+      "model": "hybrid_no_fir",
+      "parameters": 5480,
+      "active_source_median": {
+        "mse": 0.0031708269289083546,
+        "l1": 0.03601290069054812,
+        "esr": 0.0729130236485517,
+        "mrstft": 0.2799849497154355,
+        "lsd_db": 1.7881370574235915
+      },
+      "by_regime_pair_median": {
+        "held_out_controls": {
+          "mse": 0.007653199834749103,
+          "l1": 0.08340133726596832,
+          "esr": 0.15992551833160396,
+          "mrstft": 0.6279883980751038,
+          "lsd_db": 3.305577516555786
+        },
+        "seen_controls": {
+          "mse": 3.957981061830651e-05,
+          "l1": 0.005319501738995314,
+          "esr": 0.0002726852649363792,
+          "mrstft": 0.045569444075226784,
+          "lsd_db": 0.7633422017097473
+        }
+      },
+      "failed_checks": {
+        "runtime_screening": {
+          "passed": false,
+          "observed": 1.927152,
+          "maximum": 0.7
+        }
+      },
+      "checkpoint_sha256": "cbfb264f9e08dffecca1c13ab21ed0a4474922dc334fd16ec46ab455db1aa4c7"
+    },
+    {
+      "model": "hybrid_no_gru",
+      "parameters": 4983,
+      "active_source_median": {
+        "mse": 0.003211394824711533,
+        "l1": 0.03697040806291625,
+        "esr": 0.06656262623920822,
+        "mrstft": 0.2885040886700153,
+        "lsd_db": 1.9603560656309127
+      },
+      "by_regime_pair_median": {
+        "held_out_controls": {
+          "mse": 0.0074476455338299274,
+          "l1": 0.07911371067166328,
+          "esr": 0.1448149943805957,
+          "mrstft": 0.651961475610733,
+          "lsd_db": 3.5175009965896606
+        },
+        "seen_controls": {
+          "mse": 8.979059930425137e-05,
+          "l1": 0.007496043341234326,
+          "esr": 0.0005611828490081569,
+          "mrstft": 0.06420059502124786,
+          "lsd_db": 0.7392970621585846
+        }
+      },
+      "failed_checks": {
+        "runtime_screening": {
+          "passed": false,
+          "observed": 0.7551674999999998,
+          "maximum": 0.7
+        }
+      },
+      "checkpoint_sha256": "75a632ae34e6fca06b297a17c813650b1e9b6849385dbdccdc6b5ed9be81f4fc"
+    },
+    {
+      "model": "tcn",
+      "parameters": 3969,
+      "active_source_median": {
+        "mse": 0.0296149046625942,
+        "l1": 0.12393529042601585,
+        "esr": 0.21902536559836544,
+        "mrstft": 1.13704953789711,
+        "lsd_db": 6.97651162147522
+      },
+      "by_regime_pair_median": {
+        "held_out_controls": {
+          "mse": 0.005020622164011002,
+          "l1": 0.059502974152565,
+          "esr": 0.09327557561403128,
+          "mrstft": 0.8733508288860321,
+          "lsd_db": 5.686640501022339
+        },
+        "seen_controls": {
+          "mse": 0.02572211716324091,
+          "l1": 0.13221202790737152,
+          "esr": 0.2877354958516172,
+          "mrstft": 1.277410864830017,
+          "lsd_db": 8.313136100769043
+        }
+      },
+      "failed_checks": {
+        "quality_esr": {
+          "passed": false,
+          "observed": 0.21902536559836544,
+          "maximum": 0.1
+        }
+      },
+      "checkpoint_sha256": "13e0b25b1c1641190138025fc4674bde1694567e845fe6a2cadf47ae834f1c70"
+    }
+  ],
+  "phase_status": "single-seed evidence; P2 replication and P3 matched multi-family study remain",
+  "interpretation": "Unconditioned models cannot distinguish identical dry input at different drive settings. Compare the hybrid to a conditioned baseline. Validation contains seen control settings; inspect held-out-control results separately."
+}

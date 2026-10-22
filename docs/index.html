@@ -1,0 +1,106 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Neural audio research documentation — Neural Audio R&amp;D research documentation.">
+  <title>Neural audio research documentation | Neural Audio R&amp;D</title>
+  <link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header"><a class="brand" href="index.html">Neural Audio <span>R&amp;D</span></a><span class="edition">Research documentation · 2026-10-21</span></header>
+<div class="layout">
+  <aside class="sidebar"><nav aria-label="Documentation"><a href="index.html" aria-current="page">Documentation</a>
+<a href="THEORY_AND_MATHEMATICS.html">Theory &amp; mathematics</a>
+<a href="METRICS.html">Metrics &amp; statistics</a>
+<a href="EXPERIMENTS.html">Experiments &amp; flowcharts</a>
+<a href="RESEARCH_PIPELINE.html">Production protocol</a><a href="course/index.html">Course: learn the foundations</a></nav><details class="contents" open=""><summary>On this page</summary><div class="toc">
+<ul></ul>
+</div>
+</details><a class="report-link" href="../deep-research-report.html">Original research report ↗</a></aside>
+  <main id="main-content"><article><h1 id="neural-audio-research-documentation">Neural audio research documentation</h1>
+<p><strong>Current development preview:</strong> see <a href="NATIVE_AND_REFERENCE.html">native standalone/VST3, paired-reference inference and measured acceptance</a>. The synthetic extension was executed on 2026-10-22; sustained timing failed and external acceptance remains open.</p>
+<p><strong>Start learning:</strong> the <a href="course/index.html">twelve-lesson HTML course</a> teaches these foundations with interactive plots, worked mathematical examples, exercises, and a capstone. It works offline.</p>
+<p>This documentation connects the project's research questions to its DSP, neural models, equations, experiments, and evidence. Specification snapshot: 2026-10-21.</p>
+<div class="table-scroll" tabindex="0"><table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="THEORY_AND_MATHEMATICS.html">Theoretical foundations and mathematical specification</a></td>
+<td>System identification, sampling, convolution, nonlinearities, neural networks, exact implemented architecture, optimization, state, and proposed extensions</td>
+</tr>
+<tr>
+<td><a href="METRICS.html">Metrics and statistical interpretation</a></td>
+<td>Exact waveform/spectral formulas, aggregation, runtime and export metrics, ABX statistics, and future effect-specific diagnostics</td>
+</tr>
+<tr>
+<td><a href="EXPERIMENTS.html">Experiments, flowcharts, and expected results</a></td>
+<td>Experiment sequence, model/training/evaluation flowcharts, reproducible commands, acceptance thresholds, observed results, and falsifiable expectations</td>
+</tr>
+<tr>
+<td><a href="RESEARCH_PIPELINE.html">Research production pipeline</a></td>
+<td>Existing phase protocol, production acceptance criteria, and implementation backlog</td>
+</tr>
+</tbody>
+</table></div>
+<p>Read the theory first, then metrics and experiments. Each page is an HTML document with equations and flowcharts embedded as SVG. Everything renders offline, without external scripts or a documentation server. The original <a href="../deep-research-report.html">HTML</a> and <a href="../deep-research-report.md">Markdown</a> research reports remain the project motivation. Their HyNeFX-RT and CHNFX proposals differ: the implemented <code>hybrid</code> is a three-branch prototype related to the HTML proposal, without a reference encoder or long convolution engine.</p>
+<p>Throughout these documents:</p>
+<ul>
+<li><strong>Implemented</strong> describes behavior in <code>src/neural_fx</code>, whether or not a large experiment has run.</li>
+<li><strong>Measured</strong> identifies recorded evidence, principally <a href="../reports/INITIAL_RESULTS.md">the initial results</a> and <a href="../reports/smoke-evidence.json">their JSON snapshot</a>.</li>
+<li><strong>Required</strong> identifies an acceptance target from the phase protocol or checked-in configurations.</li>
+<li><strong>Proposed</strong> identifies mathematical designs or experiments requiring implementation and protocol decisions.</li>
+</ul>
+<p>The source files define current executable behavior. The phase protocol defines research acceptance. Expected results are hypotheses, not measurements or guarantees. The larger research configuration is available, but the retained initial evidence is a one-seed synthetic distortion smoke study.</p>
+<p>Implementation map:</p>
+<div class="table-scroll" tabindex="0"><table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Synthetic effects, losses, objective metrics</td>
+<td><a href="../src/neural_fx/dsp.py"><code>dsp.py</code></a></td>
+</tr>
+<tr>
+<td>Pair generation, alignment, verification, crops</td>
+<td><a href="../src/neural_fx/data.py"><code>data.py</code></a>, <a href="../src/neural_fx/prepare.py"><code>prepare.py</code></a></td>
+</tr>
+<tr>
+<td>Seven architectures and streaming state</td>
+<td><a href="../src/neural_fx/models.py"><code>models.py</code></a></td>
+</tr>
+<tr>
+<td>Optimization, checkpoint selection, evaluation</td>
+<td><a href="../src/neural_fx/experiment.py"><code>experiment.py</code></a></td>
+</tr>
+<tr>
+<td>CPU measurements and finite-context ONNX export</td>
+<td><a href="../src/neural_fx/runtime.py"><code>runtime.py</code></a></td>
+</tr>
+<tr>
+<td>ABX packaging and descriptive scoring</td>
+<td><a href="../src/neural_fx/listening.py"><code>listening.py</code></a></td>
+</tr>
+<tr>
+<td>Automated engineering gates and orchestration</td>
+<td><a href="../src/neural_fx/pipeline.py"><code>pipeline.py</code></a></td>
+</tr>
+<tr>
+<td>CLI and reproducibility metadata</td>
+<td><a href="../src/neural_fx/cli.py"><code>cli.py</code></a>, <a href="../src/neural_fx/utils.py"><code>utils.py</code></a></td>
+</tr>
+</tbody>
+</table></div>
+<p>External primary sources are linked alongside the theoretical concepts they support. Mathematical expressions labeled implemented are derived from the repository, rather than copied from the original reports.</p></article><footer>Neural Audio R&amp;D · Specification snapshot 2026-10-21 · <a href="index.html">Documentation index</a></footer></main>
+</div>
+
+
+</body></html>

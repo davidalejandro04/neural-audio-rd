@@ -13,13 +13,76 @@ from .models import stream
 from .prepare import prepare_pairs
 from .listening import package_abx, score_abx
 from .pipeline import run
-from .runtime import benchmark, export_onnx
+from .runtime import benchmark, benchmark_onnx, benchmark_study, export_onnx
+from .study import analyze_study, plan_study, review_run
 from .utils import read_json, write_json
+from .native import native_build, native_validate, validator_build, validate_plugin, native_sustain, package_preview
+from .reference import train_reference, infer_reference, render_reference
 
 
 def main():
     parser = argparse.ArgumentParser(description="Reproducible neural audio-effects experiments")
     commands = parser.add_subparsers(dest="command", required=True)
+    command = commands.add_parser("package-preview")
+    command.add_argument("--validation", required=True, type=Path)
+    command.add_argument("--output", required=True, type=Path)
+    command.add_argument("--build", type=Path, default=Path("build/native"))
+    command.add_argument("--reference-preset", type=Path)
+    command = commands.add_parser("validator-build")
+    command.add_argument("--output", type=Path, default=Path("build/vst3-validator"))
+    command.add_argument("--sdk", type=Path)
+    command = commands.add_parser("validate-plugin")
+    command.add_argument("--plugin", required=True, type=Path)
+    command.add_argument("--validator", type=Path, default=Path("build/vst3-validator/bin/Release/validator.exe"))
+    command.add_argument("--model", type=Path)
+    command.add_argument("--output", required=True, type=Path)
+    command = commands.add_parser("native-sustain")
+    command.add_argument("--model", required=True, type=Path)
+    command.add_argument("--executable", type=Path, default=Path("build/native/Release/nafx-render.exe"))
+    command.add_argument("--output", required=True, type=Path)
+    command.add_argument("--seconds", type=int, default=600)
+    command = commands.add_parser("train-reference")
+    command.add_argument("--config", required=True, type=Path)
+    command.add_argument("--output", required=True, type=Path)
+    for name in ("infer-reference", "render-reference"):
+        command = commands.add_parser(name)
+        command.add_argument("--encoder", required=True, type=Path)
+        command.add_argument("--reference-dry", required=True, type=Path)
+        command.add_argument("--reference-wet", required=True, type=Path)
+        command.add_argument("--output", required=True, type=Path)
+        if name == "render-reference":
+            command.add_argument("--checkpoint", required=True, type=Path)
+            command.add_argument("--input", required=True, type=Path)
+    command = commands.add_parser("native-build")
+    command.add_argument("--output", type=Path, default=Path("build/native"))
+    command.add_argument("--sdk", type=Path)
+    command.add_argument("--plugin", action="store_true")
+    command.add_argument("--juce", type=Path)
+    command = commands.add_parser("native-validate")
+    command.add_argument("--checkpoint", required=True, type=Path)
+    command.add_argument("--executable", type=Path, default=Path("build/native/Release/nafx-render.exe"))
+    command.add_argument("--output", required=True, type=Path)
+    command.add_argument("--block-sizes", nargs="+", type=int, default=[64, 128, 256, 512])
+    command.add_argument("--plugin", type=Path)
+    command.add_argument("--host-check", type=Path)
+    command = commands.add_parser("benchmark-onnx")
+    command.add_argument("--model", required=True, type=Path)
+    command.add_argument("--output", required=True, type=Path)
+    command.add_argument("--checkpoint", type=Path)
+    command.add_argument("--iterations", type=int, default=2000)
+    command = commands.add_parser("benchmark-study")
+    command.add_argument("--plan", required=True, type=Path)
+    command.add_argument("--output", required=True, type=Path)
+    command.add_argument("--iterations", type=int, default=2000)
+    command = commands.add_parser("review-run")
+    command.add_argument("--run", required=True, type=Path)
+    command.add_argument("--output", required=True, type=Path)
+    command = commands.add_parser("plan-study")
+    command.add_argument("--config", required=True, type=Path)
+    command.add_argument("--output", required=True, type=Path)
+    command = commands.add_parser("analyze-study")
+    command.add_argument("--plan", required=True, type=Path)
+    command.add_argument("--output", required=True, type=Path)
     command = commands.add_parser("prepare")
     command.add_argument("--index", required=True, type=Path)
     command.add_argument("--output", required=True, type=Path)
@@ -61,7 +124,35 @@ def main():
     command.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     try:
-        if args.command == "prepare":
+        if args.command == "package-preview":
+            result = package_preview(args.validation, args.output, args.build, args.reference_preset)
+        elif args.command == "validator-build":
+            result = validator_build(args.output, args.sdk)
+        elif args.command == "validate-plugin":
+            result = validate_plugin(args.plugin, args.validator, args.output, args.model)
+        elif args.command == "native-sustain":
+            result = native_sustain(args.model, args.executable, args.output, args.seconds)
+        elif args.command == "train-reference":
+            result = train_reference(read_json(args.config), args.output)
+        elif args.command == "infer-reference":
+            result = infer_reference(args.encoder, args.reference_dry, args.reference_wet, args.output)
+        elif args.command == "render-reference":
+            result = render_reference(args.encoder, args.checkpoint, args.reference_dry, args.reference_wet, args.input, args.output)
+        elif args.command == "native-build":
+            result = native_build(args.output, args.sdk, args.plugin, args.juce)
+        elif args.command == "native-validate":
+            result = native_validate(args.checkpoint, args.executable, args.output, args.block_sizes, args.plugin, args.host_check)
+        elif args.command == "benchmark-onnx":
+            result = benchmark_onnx(args.model, args.output, args.iterations, args.checkpoint)
+        elif args.command == "benchmark-study":
+            result = benchmark_study(args.plan, args.output, args.iterations)
+        elif args.command == "review-run":
+            result = review_run(args.run, args.output)
+        elif args.command == "plan-study":
+            result = plan_study(read_json(args.config), args.output)
+        elif args.command == "analyze-study":
+            result = analyze_study(args.plan, args.output)
+        elif args.command == "prepare":
             result = prepare_pairs(args.index, args.output)
         elif args.command == "abx-package":
             result = package_abx(args.evaluation, args.output, args.seed)
@@ -96,8 +187,10 @@ def main():
             args.output.parent.mkdir(parents=True, exist_ok=True)
             wavfile.write(args.output, rate, rendered.astype(np.float32))
             result = {"output": str(args.output), "samples": len(rendered), "peak": float(np.abs(rendered).max())}
-    except (ValueError, FileExistsError) as error:
+    except (ValueError, OSError) as error:
         parser.exit(2, f"error: {error}\n")
     print(json.dumps(result, indent=2, allow_nan=False))
     if args.command == "run" and not result["all_engineering_gates_passed"]:
         parser.exit(1, "One or more engineering gates failed; inspect each models/*/gates.json.\n")
+    if args.command == "validate-plugin" and not result["passed"]:
+        parser.exit(1, "VST3 conformity tests failed; inspect validator.json and logs.\n")

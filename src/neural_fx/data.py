@@ -55,7 +55,16 @@ def generate(config, root):
     sample_rate, samples = settings["sample_rate"], settings["samples"]
     if sample_rate < 8000 or samples < 256:
         raise ValueError("Use sample_rate >= 8000 and samples >= 256")
-    rng = np.random.default_rng(config["seed"])
+    data_seed = config.get("data_seed", config["seed"])
+    rng = np.random.default_rng(data_seed)
+    default_controls = [(0.1, 1.0), (0.5, 1.0), (0.9, 1.0), (0.5, 0.0)]
+    specified = settings.get("controls", {})
+    train_controls = specified.get("train", default_controls)
+    control_sets = {split: specified.get(split, train_controls if split != "test" else list(train_controls) + [(0.3, 0.65), (0.7, 0.4)]) for split in SPLITS}
+    for controls in control_sets.values():
+        if not controls or any(len(pair) != 2 or any(not np.isfinite(value) or not 0 <= value <= 1 for value in pair) for pair in controls):
+            raise ValueError("Controls must be nonempty [drive, mix] pairs in [0, 1]")
+    known_controls = {tuple(pair) for pair in train_controls}
     count = 0
     for split in SPLITS:
         entries = []
@@ -69,9 +78,7 @@ def generate(config, root):
             dry += rng.normal(0, 0.025, samples)
             dry *= rng.uniform(0.3, 1.0)
             dry = dry.astype(np.float32)
-            controls = [(0.1, 1.0), (0.5, 1.0), (0.9, 1.0), (0.5, 0.0)]
-            if split == "test":
-                controls += [(0.3, 0.65), (0.7, 0.4)]
+            controls = control_sets[split]
             for preset, values in enumerate(controls):
                 pair_id = f"{source}_preset_{preset}"
                 pair_dir = root / "pairs" / pair_id
@@ -81,7 +88,7 @@ def generate(config, root):
                 wavfile.write(pair_dir / "wet.wav", sample_rate, wet)
                 entry = {
                     "pair_id": pair_id, "source_id": source, "split": split,
-                    "regime": "held_out_controls" if preset >= 4 else "seen_controls",
+                    "regime": "seen_controls" if tuple(values) in known_controls else "held_out_controls",
                     "effect_type": settings["effect"], "device_id": "synthetic_dsp_v1",
                     "sample_rate": sample_rate, "channels": 1, "num_samples": samples,
                     "latency_samples": 0, "input_gain_db": 0.0,
@@ -97,8 +104,8 @@ def generate(config, root):
                 count += 1
         (root / "manifests").mkdir(exist_ok=True)
         (root / "manifests" / f"{split}.jsonl").write_text("".join(json.dumps(e, sort_keys=True) + "\n" for e in entries), encoding="utf-8")
-    write_json(root / "dataset.json", {"seed": config["seed"], "data": settings,
-                                        "generation_hash": canonical_hash({"seed": config["seed"], "data": settings}), "pairs": count})
+    write_json(root / "dataset.json", {"seed": data_seed, "data": settings,
+                                        "generation_hash": canonical_hash({"seed": data_seed, "data": settings}), "pairs": count})
     return verify(root)
 
 

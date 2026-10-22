@@ -2,7 +2,15 @@
 
 A runnable, phased research pipeline for controllable neural audio effects, based on [the HTML research report](deep-research-report.html) and [the Markdown report](deep-research-report.md).
 
-The [research production plan](docs/RESEARCH_PIPELINE.md) defines seven phases, measurable acceptance criteria, current implementation status and the remaining work. The first implementation supports synthetic distortion/cabinet/reverb pairs, data audits, causal Conv1D/TCN/GRU baselines, FiLM conditioning, a TCN/GRU/FIR hybrid with branch ablations, held-out evaluation, streaming checks, CPU measurements, ONNX export and WAV rendering. Reference transfer and a native VST3 release are future phases.
+Open the [HTML documentation guide](docs/index.html) for [theoretical foundations and mathematical specifications](docs/THEORY_AND_MATHEMATICS.html), [metric formulas and statistical interpretation](docs/METRICS.html), and [experiments, flowcharts, and expected results](docs/EXPERIMENTS.html). Equations and flowcharts are embedded as SVG for offline viewing. These distinguish implemented behavior, measured evidence, acceptance targets, and proposed research.
+
+Learn the foundations through the [HTML course](docs/course/index.html): twelve lessons with interactive visualizations, downloadable plots, step-by-step mathematical examples, repo exercises, worked answers, a formula sheet, and a capstone. The course works offline with local assets.
+
+The [research production plan](docs/RESEARCH_PIPELINE.html) defines seven phases, measurable acceptance criteria, current implementation status and the remaining work. The repository supports synthetic distortion/cabinet/reverb pairs, data audits, causal Conv1D/TCN/GRU baselines, FiLM conditioning, hybrid ablations, held-out evaluation, streaming checks and export. The extension provides paired-reference control inference and native standalone/VST3 development builds; full reference-transfer and release acceptance remain open.
+
+The [native preview and reference-transfer guide](docs/NATIVE_AND_REFERENCE.html) documents the implemented P4 baseline, P5 C++ renderer and recurrent exports, and P6 standalone/VST3 development build. The local Windows preview is in `exports/preview-v2/`: run `exports\preview-v2\Launch-NeuralFX.cmd`, use 48 kHz audio, and load `presets/reference-example.json` through **Load reference preset**. Native parity and official VST3 conformity have been tested; real-capture, human listening and target-DAW acceptance are still pending.
+
+The ten-minute native timing test completed with p99 0.6912 ms, but recorded 40 processing overruns and 296 scheduling misses at 128 samples/48 kHz. Sustained acceptance failed. See [the evidence snapshot](reports/phases-4-6-evidence.json); the preview is for development and listening experiments.
 
 ## Quickstart
 
@@ -22,7 +30,7 @@ To benchmark all seven architectures:
 python -m neural_fx run --config configs/smoke.json --output runs/suite --suite
 ```
 
-Use a new output directory for each run. `--export` requires the export extra and currently supports models without a GRU. A suite can finish with exit code 1 because some models miss the declared quality or CPU budget; inspect `status.json` and `models/*/gates.json`. Tests and engineering acceptance gates serve different purposes.
+Use a new output directory for each run. `--export` requires the export extra. Recurrent models now export explicit `hidden`/`next_hidden` ports as well as audio history. A suite can finish with exit code 1 because some models miss the declared quality or CPU budget; inspect `status.json` and `models/*/gates.json`. Tests and engineering acceptance gates serve different purposes.
 
 If Python reports `No module named neural_fx`, install the package from the repository root using the same interpreter you use to run it:
 
@@ -62,6 +70,24 @@ Share only the `public` folder with listeners. Keep the private key with the res
 
 ## Evidence and limitations
 
+The completed P3 study and next runtime checks are interpreted in the [P3 results and P5 guide](docs/P3_RESULTS_AND_RUNTIME.html). P3 did not meet its overall acceptance criterion; cabinet quality improved against the tested TCN, while distortion improvement was unsupported and runtime acceptance failed. Keep the original analysis unchanged.
+
+Benchmark existing nonrecurrent exports directly without retraining or PowerShell scripts:
+
+```console
+python -m neural_fx benchmark-study --plan configs/p3-study/plan.json --output runs/p5-onnx-local --iterations 2000
+```
+
+This measures ONNX Runtime CPU and PyTorch on the same active input blocks at the exported block size, verifies the saved sequence, and saves JSON/CSV comparisons. It does not export recurrent models, perform a native callback test, or change P3 acceptance. Use a fresh output directory for each profiling run.
+
+The [next-phase guide](docs/NEXT_PHASES.html) reviews the longer `research-01` results and explains the prepared P3 study. It compares a parameter-matched conditioned TCN and the hybrid/ablations over distortion and cabinet targets with three training seeds and a fixed dataset. Start with one configuration before scheduling all 24 model fits:
+
+```powershell
+python -m neural_fx run --config configs/p3-study/distortion-seed-1337.json --output configs/p3-study/runs/distortion-seed-1337 --suite --export
+```
+
+To run the remaining study configurations, invoke `& .\configs\p3-study\run.ps1` in PowerShell. The runner skips completed configurations with matching config hashes, retains engineering gate failures, and stops for execution errors. It writes `configs/p3-study/analysis.json` with paired bootstrap comparisons and separate quality/runtime decisions. A new study can be prepared with `python -m neural_fx plan-study --config configs/research.json --output configs/another-study`.
+
 See [the initial results](reports/INITIAL_RESULTS.md) for measured results and failed gates. Data, weights, exports and audio remain local under ignored directories; compact metric evidence is kept in `reports/`. External recordings are not bundled. Code, recordings, trained weights and plugin dependencies require separate license decisions before distribution.
 
-The implementation does not establish architectural novelty, real hardware fidelity, reference-based effect transfer, listening-test indistinguishability or plugin readiness. Those claims require the remaining phase gates.
+The implementation includes an exploratory paired-reference control encoder, native renderer and local VST3 build. It does not establish architectural novelty, real hardware fidelity, a jointly trained reference-conditioned hybrid, listening-test indistinguishability or production readiness. Those claims require the remaining phase gates.

@@ -1,0 +1,26 @@
+{
+  "scope": "Synthetic paired-reference control inference with known DSP decoder; exploratory P4 baseline",
+  "checkpoint_sha256": "40f23a7c7c76e077f604af8fc05bb3f911c5bff20305c3b1e95af8f6876af607",
+  "manifest_sha256": {
+    "train": "917b423420a7985062d10536fdea2f9b815b4b2a31ac0e072c6658dc0be918ed",
+    "valid": "dae56b3c5011cce5d95707d1129d4a36a8c277c808f8827f643c3dce27be457d",
+    "test": "4895af556ee0da2f91080e0530ddc1ae6797c4146df3e111c5be902c434ab7eb"
+  },
+  "test_control_mse": 0.007108891848474741,
+  "cross_content_trials": 72,
+  "independent_test_sources": 12,
+  "summary": {
+    "reference_system": {
+      "esr": 0.01616259055870738,
+      "mrstft": 0.21577290942271551
+    },
+    "no_reference": {
+      "esr": 0.6633223137999638,
+      "mrstft": 1.1133177590866885
+    }
+  },
+  "same_effect_latent_closer_fraction": 0.9583333333333334,
+  "production_ready": false,
+  "listening_results": null,
+  "limitations": "No joint audio-backbone training, no real captures, no subjective study; estimates require paired and already aligned reference dry/wet audio."
+}

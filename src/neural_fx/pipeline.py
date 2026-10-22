@@ -49,13 +49,16 @@ def run(config, output, suite=False, with_export=False):
     for name in models:
         selected = deepcopy(config)
         selected["model"]["name"] = name
+        selected["model"].update(config.get("model_variants", {}).get(name, {}))
+        if selected["model"]["name"] != name:
+            raise ValueError("model_variants may change architecture settings, not the model name")
         folder = output / "models" / name
         try:
             training = train(selected, root, folder)
             metrics = evaluate(folder / "best.pt", root, folder / "evaluation")
             runtime = benchmark(folder / "best.pt", folder / "runtime.json", config["evaluation"]["block_sizes"])
             exported = None
-            if with_export and name not in ("gru", "hybrid", "hybrid_no_fir"):
+            if with_export:
                 exported = export_onnx(folder / "best.pt", folder / "model.onnx")
             gates = assess(selected, metrics, runtime, exported)
             write_json(folder / "gates.json", gates)
@@ -69,7 +72,7 @@ def run(config, output, suite=False, with_export=False):
     comparison = compare(output / "models", output)
     status = {"state": "completed", "config_sha256": canonical_hash(config), "completed_models": results,
               "all_engineering_gates_passed": all(row["gates_passed"] for row in results),
-              "research_claim": "not tested; smoke experiments do not establish hybrid superiority",
+              "research_claim": "not tested; a single run does not establish hybrid superiority",
               "comparison": comparison}
     write_json(output / "status.json", status)
     return status

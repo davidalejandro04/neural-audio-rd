@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>After research-01: next phases | Neural Audio R&amp;D</title>
+  <link rel="stylesheet" href="assets/docs.css">
+</head>
+<body>
+<header class="site-header"><a class="brand" href="index.html">Neural Audio R&amp;D</a><span class="edition">Experiment review · 2026-10-21</span></header>
+<main id="main-content"><article>
+<h1>After research-01: next phases</h1>
+<p>The single-seed research run establishes a useful conditional distortion baseline. It does not establish the hybrid hypothesis or finish P2 replication. Continue with a fair P3 comparison and the runtime work; P4 reference transfer and P6 plugin acceptance remain future work.</p>
+<h2>What the saved gates actually say</h2>
+<table><thead><tr><th>Model</th><th>Active test ESR</th><th>Failed checks</th></tr></thead><tbody>
+<tr><td>Conv1D</td><td>0.2055</td><td>Quality</td></tr>
+<tr><td>Unconditioned TCN</td><td>0.2190</td><td>Quality</td></tr>
+<tr><td>Conditional TCN</td><td>0.00929</td><td>None</td></tr>
+<tr><td>GRU</td><td>0.01910</td><td>CPU timing</td></tr>
+<tr><td>Hybrid without GRU</td><td>0.06656</td><td>CPU timing</td></tr>
+<tr><td>Hybrid without FIR</td><td>0.07291</td><td>CPU timing</td></tr>
+<tr><td>Full hybrid</td><td>0.13586</td><td>Quality and CPU timing</td></tr>
+</tbody></table>
+<p>All models passed streaming equivalence. Gates use test ESR, not the validation ESR printed beside training progress. Unconditioned baselines receive the same dry source at multiple drive settings without access to drive, so they cannot reproduce every target exactly. The principal hybrid comparison must use a <strong>conditioned</strong> baseline.</p>
+<p>The full hybrid has a seen-controls pair-median ESR of 0.000573 and held-out-controls ESR of 0.3369; conditional TCN has 0.000387 and 0.01991 respectively. Low validation error on seen presets does not demonstrate control interpolation. Training only includes active mix=1 and bypass mix=0, while test includes intermediate mix; both drive and mix change in the held-out presets, so these data do not isolate the cause. Conditioning on mix as well as applying an explicit mix residual is a possible contributor, not an established explanation. Test it in a future development ablation without selecting on the final test set.</p>
+<p><a href="../reports/research-01-review.json">Machine-readable review of the saved run</a>. Existing checkpoints and reports are retained.</p>
+<h2>P3: prepared matched study</h2>
+<ul>
+<li>Conditioned TCN: 19 channels and 6,138 parameters. Full hybrid: 16 channels and 6,011 parameters. Difference: 2.1%, within the 10% tolerance.</li>
+<li>Two synthetic target families: distortion and cabinet. Three training seeds: 1337, 2027 and 3407. Data seed 8181 is fixed across training seeds and is different from the reviewed pilot.</li>
+<li>Four model fits per configuration: matched conditional TCN, hybrid without GRU, hybrid without FIR, full hybrid. Six configurations mean 24 model fits. Ablations retain branch widths and have fewer parameters; they are not individually parameter matched.</li>
+<li>Each fit retains the research budget: 60 train, 15 validation and 20 test sources, one second/source at 48 kHz, 60 epochs, CPU execution. The prospective configs retain existing quality/timing thresholds.</li>
+</ul>
+<p>Start with one configuration. This is a substantive CPU workload; training is not launched by the planner.</p>
+<pre><code>python -m neural_fx run --config configs/p3-study/distortion-seed-1337.json --output configs/p3-study/runs/distortion-seed-1337 --suite --export</code></pre>
+<p>Inspect its gate reports and held-out controls before deciding how much additional compute to spend. To complete the preregistered study without changing its configs, run this in PowerShell:</p>
+<pre><code>&amp; .\configs\p3-study\run.ps1</code></pre>
+<p>The runner skips completed, config-matching runs, including completed runs whose engineering gates failed. It stops on incomplete or conflicting output, and on execution errors. It does not resume a partially trained model. The runner requests ONNX export only for the already supported nonrecurrent adapters; GRU variants still need a persistent-hidden-state adapter.</p>
+<p>Analysis can also be run separately:</p>
+<pre><code>python -m neural_fx analyze-study --plan configs/p3-study/plan.json --output configs/p3-study/analysis.json</code></pre>
+<h2>P3 acceptance and interpretation</h2>
+<p>Within each source, average active presets. Average these source scores across training seeds, then take the median over sources. Resample source and seed indices independently using identical resamples for both models; report percentile 95% paired bootstrap intervals for the error reduction. These are exploratory intervals with only three training seeds, not a publication guarantee. Report held-out controls separately.</p>
+<p>Each of two families needs at least a 10% reduction in both ESR and MR-STFT, bootstrap intervals above zero improvement, no deterioration in held-out-controls point estimates, the parameter match, the minimum source/seed counts, and passing quality, streaming and runtime checks. A rejected or inconclusive hybrid result is valid. The current model is not expected to pass by assumption.</p>
+<p>The analyzer separates quality-hypothesis support from runtime acceptance and rejects mismatched configs, checkpoints or dataset snapshots. It reports missing study runs as incomplete. P3 synthetic acceptance always leaves <code>production_ready=false</code>.</p>
+<h2>What follows after this study</h2>
+<ol>
+<li><strong>Data and P2 replication:</strong> inspect licensed real DI/effect pairs with the existing importer. Synthetic cabinet experiments do not establish actual hardware fidelity. Repeated training seeds on a fixed dataset quantify training variability, not variability across datasets.</li>
+<li><strong>P5 runtime:</strong> profile and implement an explicit persistent-GRU export adapter or a native recurrent runtime. Preserve streaming behavior, test native golden vectors, then measure sustained callback deadlines. The current short Python screen cannot accept a VST3 release.</li>
+<li><strong>P4 transfer:</strong> add a paired-reference encoder and source-disjoint transfer protocol to an adequately performing controllable backbone. Hybrid rejection does not prevent using the stronger conditional TCN as that backbone, but any changed hypothesis needs a new protocol.</li>
+<li><strong>P6 release:</strong> build the native standalone/JUCE plugin, collect human listening results, run the VST3 validator and host smoke tests, and verify dataset/model/SDK notices. ABX packaging is implemented; actual listener results and plugin validation are not.</li>
+</ol>
+<p><a href="RESEARCH_PIPELINE.html">Original production protocol</a> · <a href="index.html">Documentation index</a></p>
+</article></main>
+</body></html>

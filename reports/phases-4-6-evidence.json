@@ -1,0 +1,1772 @@
+{
+  "recorded_date": "2026-10-22",
+  "scope": "Executed local synthetic development pass; real captures deferred by user. Implemented tooling and exploratory experiments do not imply phase acceptance.",
+  "production_ready": false,
+  "phase_status": {
+    "P3": "Completed original study; overall acceptance failed and remains unchanged.",
+    "P4": "Exploratory paired-reference control encoder trained and tested with known DSP decoder on one synthetic effect family. Joint latent-conditioned hybrid, replicated families and listening acceptance remain open.",
+    "P5": "Native C++ renderer and explicit recurrent ONNX state implemented. Audio/state parity passed. Short native timing screens passed for final preview, but 600-second sustained timing failed; internal allocation audit remains open.",
+    "P6": "Standalone/VST3 built and packaged. Official validator and local synthetic host checks passed. Named DAW, listener, clean-machine and release acceptance remain open."
+  },
+  "p3_snapshot": {
+    "path": "reports/p3-completed-analysis.json",
+    "sha256": "747430e2c3a5a36b133499bf806c1b00e76e82960ca8e3a55a0b57d7ab6168d3",
+    "report": {
+      "state": "analyzed",
+      "plan_sha256": "db807d62ac17c7e67bbceae32cebf98b3db386aa9b9ced824ebd9aa8f4af907b",
+      "missing_runs": [],
+      "effects": {
+        "distortion": {
+          "primary": {
+            "sources": 20,
+            "seeds": 3,
+            "metrics": {
+              "esr": {
+                "baseline": 0.076354082873756,
+                "candidate": 0.09336708699827276,
+                "relative_improvement": -0.22281721532358778,
+                "absolute_improvement_95_ci": [
+                  -0.18010007435519004,
+                  0.16311886602103381
+                ],
+                "improvement_supported": false
+              },
+              "mrstft": {
+                "baseline": 0.28788093806554876,
+                "candidate": 0.3140231618036826,
+                "relative_improvement": -0.09080915156731018,
+                "absolute_improvement_95_ci": [
+                  -0.24091775218645733,
+                  0.2564223235519598
+                ],
+                "improvement_supported": false
+              }
+            }
+          },
+          "held_out_controls": {
+            "sources": 20,
+            "seeds": 3,
+            "metrics": {
+              "esr": {
+                "baseline": 0.189559289867902,
+                "candidate": 0.23282387597337095,
+                "relative_improvement": -0.22823775155318798,
+                "absolute_improvement_95_ci": [
+                  -0.45074410849274493,
+                  0.4076026033486543
+                ],
+                "improvement_supported": false
+              },
+              "mrstft": {
+                "baseline": 0.6302933370073636,
+                "candidate": 0.6932959693173568,
+                "relative_improvement": -0.0999576365651113,
+                "absolute_improvement_95_ci": [
+                  -0.6044591218233109,
+                  0.6704630194231865
+                ],
+                "improvement_supported": false
+              }
+            }
+          },
+          "parameter_match": true,
+          "runtime_screening": false,
+          "streaming": true,
+          "engineering_quality": false,
+          "quality_hypothesis_supported": false,
+          "accepted": false
+        },
+        "cabinet": {
+          "primary": {
+            "sources": 20,
+            "seeds": 3,
+            "metrics": {
+              "esr": {
+                "baseline": 0.749864480373645,
+                "candidate": 0.014932014445722673,
+                "relative_improvement": 0.9800870492781811,
+                "absolute_improvement_95_ci": [
+                  0.013326616906283255,
+                  2.1302204006503187
+                ],
+                "improvement_supported": true
+              },
+              "mrstft": {
+                "baseline": 0.6446547202765942,
+                "candidate": 0.15548865472277007,
+                "relative_improvement": 0.7588032014160132,
+                "absolute_improvement_95_ci": [
+                  0.060726909507065996,
+                  1.0059701189398766
+                ],
+                "improvement_supported": true
+              }
+            }
+          },
+          "held_out_controls": {
+            "sources": 20,
+            "seeds": 3,
+            "metrics": {
+              "esr": {
+                "baseline": 1.84600776932777,
+                "candidate": 0.03452188915776748,
+                "relative_improvement": 0.981299163670184,
+                "absolute_improvement_95_ci": [
+                  0.001339209090240908,
+                  5.288793532779693
+                ],
+                "improvement_supported": true
+              },
+              "mrstft": {
+                "baseline": 1.3475654038290181,
+                "candidate": 0.27900816003481543,
+                "relative_improvement": 0.7929539009817023,
+                "absolute_improvement_95_ci": [
+                  -0.030521705746650696,
+                  2.349914249032736
+                ],
+                "improvement_supported": false
+              }
+            }
+          },
+          "parameter_match": true,
+          "runtime_screening": false,
+          "streaming": true,
+          "engineering_quality": false,
+          "quality_hypothesis_supported": true,
+          "accepted": false
+        }
+      },
+      "p3_accepted": false,
+      "production_ready": false,
+      "interpretation": "Negative or inconclusive results remain valid. Synthetic acceptance does not establish hardware fidelity, native real-time behavior, or reference transfer. Bootstrap intervals are exploratory with three seeds."
+    }
+  },
+  "control_v2": {
+    "config": {
+      "path": "configs/control_generalization_v2.json",
+      "sha256": "7e87ad13446d7b755bec7a50c9066cce4ee55f4d89183269444b03cee8885438",
+      "report": {
+        "experiment": "development_wet_path_v2",
+        "seed": 7319,
+        "data_seed": 62043,
+        "data": {
+          "effect": "distortion",
+          "sample_rate": 48000,
+          "samples": 8192,
+          "sources": {
+            "train": 16,
+            "valid": 8,
+            "test": 12
+          },
+          "controls": {
+            "train": [
+              [
+                0.05,
+                0.25
+              ],
+              [
+                0.05,
+                0.5
+              ],
+              [
+                0.05,
+                0.75
+              ],
+              [
+                0.05,
+                1.0
+              ],
+              [
+                0.25,
+                0.25
+              ],
+              [
+                0.25,
+                0.5
+              ],
+              [
+                0.25,
+                0.75
+              ],
+              [
+                0.25,
+                1.0
+              ],
+              [
+                0.5,
+                0.25
+              ],
+              [
+                0.5,
+                0.5
+              ],
+              [
+                0.5,
+                0.75
+              ],
+              [
+                0.5,
+                1.0
+              ],
+              [
+                0.75,
+                0.25
+              ],
+              [
+                0.75,
+                0.5
+              ],
+              [
+                0.75,
+                0.75
+              ],
+              [
+                0.75,
+                1.0
+              ],
+              [
+                0.95,
+                0.25
+              ],
+              [
+                0.95,
+                0.5
+              ],
+              [
+                0.95,
+                0.75
+              ],
+              [
+                0.95,
+                1.0
+              ]
+            ],
+            "valid": [
+              [
+                0.15,
+                1.0
+              ],
+              [
+                0.65,
+                1.0
+              ],
+              [
+                0.25,
+                0.4
+              ],
+              [
+                0.75,
+                0.65
+              ],
+              [
+                0.15,
+                0.4
+              ],
+              [
+                0.65,
+                0.65
+              ]
+            ],
+            "test": [
+              [
+                0.3,
+                1.0
+              ],
+              [
+                0.7,
+                1.0
+              ],
+              [
+                0.25,
+                0.6
+              ],
+              [
+                0.75,
+                0.9
+              ],
+              [
+                0.3,
+                0.6
+              ],
+              [
+                0.7,
+                0.9
+              ]
+            ]
+          }
+        },
+        "model": {
+          "name": "conditional_tcn",
+          "channels": 12,
+          "dilations": [
+            1,
+            2,
+            4,
+            8,
+            16
+          ],
+          "fir_taps": 129,
+          "wet_only_conditioning": true
+        },
+        "suite": [
+          "conditional_tcn"
+        ],
+        "training": {
+          "epochs": 40,
+          "segment_samples": 1024,
+          "batch_size": 16,
+          "learning_rate": 0.001,
+          "spectral_weight": 0.05
+        },
+        "evaluation": {
+          "block_sizes": [
+            64,
+            128,
+            256,
+            512
+          ],
+          "audio_examples": 6
+        },
+        "gates": {
+          "max_esr": 0.1,
+          "identity_esr_ratio": 0.8,
+          "stream_max_error": 1e-05,
+          "export_max_error": 1e-05,
+          "p99_budget_fraction": 0.7
+        },
+        "scope": "New single-seed development protocol after P3. Exact dry/wet mix law, mixed controls in training, unseen-drive and unseen-mix validation. Not a replacement for completed P3 or a superiority claim."
+      }
+    },
+    "run": {
+      "path": "runs/control-v2/status.json",
+      "sha256": "1aa9490bba6cc594e99460a3fc79df21a75930c0611488bf36c420b955ed2b7c",
+      "report": {
+        "state": "completed",
+        "config_sha256": "1e8493903191a65cbc2812925fd344bf4334f86003091ecf461010427dcea91e",
+        "completed_models": [
+          {
+            "model": "conditional_tcn",
+            "training": {
+              "best_valid_esr": 0.0029556875086839698,
+              "epochs": 40,
+              "checkpoint_sha256": "2fe90b905a0befb96505f8f92aca9179eacfe8704357471fd1c7f27a8b47f130"
+            },
+            "gates_passed": false
+          }
+        ],
+        "all_engineering_gates_passed": false,
+        "research_claim": "not tested; a single run does not establish hybrid superiority",
+        "comparison": [
+          {
+            "model": "conditional_tcn",
+            "parameters": 2617,
+            "max_stream_error": 7.152557373046875e-07,
+            "mse": 0.00012895022988838417,
+            "l1": 0.008920289653663833,
+            "esr": 0.0023620201268806937,
+            "mrstft": 0.11087986702720323,
+            "lsd_db": 1.3893950680891671
+          }
+        ]
+      }
+    },
+    "gates": {
+      "path": "runs/control-v2/models/conditional_tcn/gates.json",
+      "sha256": "8904ec520aad903f7baf190a507bf77c3ee5aa42260699b337838e0b7671e8e8",
+      "report": {
+        "passed": false,
+        "checks": {
+          "quality_esr": {
+            "passed": true,
+            "observed": 0.0023620201268806937,
+            "maximum": 0.1
+          },
+          "beats_identity": {
+            "passed": true,
+            "observed": 0.004223541647165249,
+            "maximum": 0.8
+          },
+          "streaming": {
+            "passed": true,
+            "observed": 7.152557373046875e-07,
+            "maximum": 1e-05
+          },
+          "runtime_screening": {
+            "passed": false,
+            "observed": 0.7878584999999999,
+            "maximum": 0.7
+          },
+          "onnx_parity": {
+            "passed": true,
+            "observed": 4.76837158203125e-07,
+            "maximum": 1e-05
+          }
+        },
+        "production_ready": false,
+        "remaining_release_requirements": [
+          "real capture evaluation",
+          "reference transfer study",
+          "native runtime parity",
+          "listening study",
+          "VST3 validator and host tests"
+        ]
+      }
+    },
+    "qualification": "New data seed, width, controls and training budget; single development run, not a controlled P3 ablation or hybrid-superiority result."
+  },
+  "reference_baseline": {
+    "path": "runs/reference-v1/evaluation-with-mean-baseline/metrics.json",
+    "sha256": "80a00bdb851ce9781ca9f61a7572ac9979bdb85f9ee563a89a94b257363b745f",
+    "report": {
+      "scope": "Synthetic paired-reference control inference with known DSP decoder; exploratory P4 baseline",
+      "checkpoint_sha256": "40f23a7c7c76e077f604af8fc05bb3f911c5bff20305c3b1e95af8f6876af607",
+      "manifest_sha256": {
+        "train": "917b423420a7985062d10536fdea2f9b815b4b2a31ac0e072c6658dc0be918ed",
+        "valid": "dae56b3c5011cce5d95707d1129d4a36a8c277c808f8827f643c3dce27be457d",
+        "test": "4895af556ee0da2f91080e0530ddc1ae6797c4146df3e111c5be902c434ab7eb"
+      },
+      "test_control_mse": 0.007108891848474741,
+      "cross_content_trials": 72,
+      "independent_test_sources": 12,
+      "summary": {
+        "reference_system": {
+          "esr": 0.01616259055870738,
+          "mrstft": 0.21577290756007034
+        },
+        "no_reference": {
+          "esr": 0.6633223137999638,
+          "mrstft": 1.1133177702625592
+        },
+        "training_mean_no_reference": {
+          "esr": 0.1605819491071311,
+          "mrstft": 0.6349689203004043
+        }
+      },
+      "training_mean_controls": [
+        0.49999999999999994,
+        0.625
+      ],
+      "same_effect_latent_closer_fraction": 0.9583333333333334,
+      "production_ready": false,
+      "listening_results": null,
+      "limitations": "No joint audio-backbone training, no real captures, no subjective study; estimates require paired and already aligned reference dry/wet audio."
+    }
+  },
+  "native_validations": [
+    {
+      "path": "runs/native-plugin-final/validation.json",
+      "sha256": "b4e959c616c736e03a56fb7d84bbb8024dbce7cf4c92f84d9895373a0e6f963d",
+      "report": {
+        "checkpoint_sha256": "41c2bc74b977d5956eea739cb07811a24a140fce452d081a2f3ee788761ca085",
+        "executable_sha256": "e04e7e570806da113bddfa025aa8b8aa4d18b7b9b17613dad62fe75dd0d4f2df",
+        "blocks": [
+          {
+            "block_size": 64,
+            "export": {
+              "passed": true,
+              "max_error": 4.76837158203125e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "41c2bc74b977d5956eea739cb07811a24a140fce452d081a2f3ee788761ca085",
+              "onnx_sha256": "b3aba6ffbc7203329f4cac10c2f1b817b449e91ce1891f31826a3f1d8486653d",
+              "block_size": 64,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  64
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  62
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history into next call; zero on stream reset"
+            },
+            "trace_max_error": 3.5762786865234375e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 4.172325134277344e-07,
+            "buffered_host_errors": {
+              "17": 4.172325134277344e-07,
+              "64": 4.172325134277344e-07,
+              "113": 4.172325134277344e-07,
+              "256": 4.172325134277344e-07,
+              "512": 4.172325134277344e-07
+            },
+            "latency_samples": 64,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 64,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.1651647,
+              "simulated_audio_seconds": 2.66666666667,
+              "mean_ms": 0.08239235,
+              "p95_ms": 0.11307,
+              "p99_ms": 0.172101,
+              "worst_ms": 0.4333,
+              "deadline_ms": 1.33333333333,
+              "p99_budget_fraction": 0.12907575,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          },
+          {
+            "block_size": 128,
+            "export": {
+              "passed": true,
+              "max_error": 3.725290298461914e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "41c2bc74b977d5956eea739cb07811a24a140fce452d081a2f3ee788761ca085",
+              "onnx_sha256": "0705f0e8440e13ae9686c50164bda4bd099c7555caeacdbeb78747f27d476205",
+              "block_size": 128,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  128
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  62
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history into next call; zero on stream reset"
+            },
+            "trace_max_error": 2.384185791015625e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 4.172325134277344e-07,
+            "buffered_host_errors": {
+              "17": 4.172325134277344e-07,
+              "64": 4.172325134277344e-07,
+              "113": 4.172325134277344e-07,
+              "256": 4.172325134277344e-07,
+              "512": 4.172325134277344e-07
+            },
+            "latency_samples": 128,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 128,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.2267289,
+              "simulated_audio_seconds": 5.33333333333,
+              "mean_ms": 0.1131276,
+              "p95_ms": 0.1671,
+              "p99_ms": 0.220531,
+              "worst_ms": 0.4089,
+              "deadline_ms": 2.66666666667,
+              "p99_budget_fraction": 0.082699125,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          },
+          {
+            "block_size": 256,
+            "export": {
+              "passed": true,
+              "max_error": 4.4330954551696777e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "41c2bc74b977d5956eea739cb07811a24a140fce452d081a2f3ee788761ca085",
+              "onnx_sha256": "e72fde7c5974a31b9528c6da645df1a35206c673dc642b1ba2a24bf4ee30a6d9",
+              "block_size": 256,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  256
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  62
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history into next call; zero on stream reset"
+            },
+            "trace_max_error": 4.76837158203125e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 4.172325134277344e-07,
+            "buffered_host_errors": {
+              "17": 4.172325134277344e-07,
+              "64": 4.172325134277344e-07,
+              "113": 4.172325134277344e-07,
+              "256": 4.172325134277344e-07,
+              "512": 4.172325134277344e-07
+            },
+            "latency_samples": 256,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 256,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.2519544,
+              "simulated_audio_seconds": 10.6666666667,
+              "mean_ms": 0.1258024,
+              "p95_ms": 0.147905,
+              "p99_ms": 0.218522,
+              "worst_ms": 0.4904,
+              "deadline_ms": 5.33333333333,
+              "p99_budget_fraction": 0.040972875,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          },
+          {
+            "block_size": 512,
+            "export": {
+              "passed": true,
+              "max_error": 4.470348358154297e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "41c2bc74b977d5956eea739cb07811a24a140fce452d081a2f3ee788761ca085",
+              "onnx_sha256": "80b4a1dd153efa229a2546c53555415078c264f5c43f3ccd7fd037a37a719c71",
+              "block_size": 512,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  512
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  62
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history into next call; zero on stream reset"
+            },
+            "trace_max_error": 4.76837158203125e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 4.172325134277344e-07,
+            "buffered_host_errors": {
+              "17": 4.172325134277344e-07,
+              "64": 4.172325134277344e-07,
+              "113": 4.172325134277344e-07,
+              "256": 4.172325134277344e-07,
+              "512": 4.172325134277344e-07
+            },
+            "latency_samples": 512,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 512,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.4076225,
+              "simulated_audio_seconds": 21.3333333333,
+              "mean_ms": 0.2035197,
+              "p95_ms": 0.287725,
+              "p99_ms": 0.464735,
+              "worst_ms": 0.9626,
+              "deadline_ms": 10.6666666667,
+              "p99_budget_fraction": 0.04356890625,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          }
+        ],
+        "host_plugin_checks": [
+          {
+            "host_block": 17,
+            "max_error": 4.172325134277344e-07,
+            "passed": true
+          },
+          {
+            "host_block": 64,
+            "max_error": 4.172325134277344e-07,
+            "passed": true
+          },
+          {
+            "host_block": 113,
+            "max_error": 4.172325134277344e-07,
+            "passed": true
+          },
+          {
+            "host_block": 256,
+            "max_error": 4.172325134277344e-07,
+            "passed": true
+          },
+          {
+            "host_block": 512,
+            "max_error": 4.172325134277344e-07,
+            "passed": true
+          }
+        ],
+        "production_ready": false,
+        "parity_passed": true,
+        "native_screening_passed": true,
+        "remaining": [
+          "sustained paced scheduling check",
+          "ONNX Runtime internal allocation audit",
+          "Ableton/Audacity host checks",
+          "human listening and real captures"
+        ]
+      }
+    },
+    {
+      "path": "runs/native-hybrid-01/validation.json",
+      "sha256": "be11e478776c37938fe046fbeb268efc716bdd15e82b763400a42f2c024e1e9b",
+      "report": {
+        "checkpoint_sha256": "e157cd3a899f5d1c0a290e4c0b55b31d59f0441b018ade82716477e50cc6dd55",
+        "executable_sha256": "53a8b70c98b27a281d163e8dc8338566ab379101ebacbd81e6d041e1f6a2257f",
+        "blocks": [
+          {
+            "block_size": 64,
+            "export": {
+              "passed": true,
+              "max_error": 2.682209014892578e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "e157cd3a899f5d1c0a290e4c0b55b31d59f0441b018ade82716477e50cc6dd55",
+              "onnx_sha256": "ea72cf4e318231df5b53294357beacf570496735e1cc07fa11016a5dfc883142",
+              "block_size": 64,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  64
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  128
+                ],
+                "hidden": [
+                  1,
+                  1,
+                  16
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history AND next_hidden into next call; zero both on reset"
+            },
+            "trace_max_error": 2.384185791015625e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 2.384185791015625e-07,
+            "buffered_host_errors": {
+              "17": 2.384185791015625e-07,
+              "64": 2.384185791015625e-07,
+              "113": 2.384185791015625e-07,
+              "256": 2.384185791015625e-07,
+              "512": 2.384185791015625e-07
+            },
+            "latency_samples": 64,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 64,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.6907141,
+              "simulated_audio_seconds": 2.66666666667,
+              "mean_ms": 0.34438155,
+              "p95_ms": 0.68305,
+              "p99_ms": 1.261224,
+              "worst_ms": 2.0167,
+              "deadline_ms": 1.33333333333,
+              "p99_budget_fraction": 0.945918,
+              "processing_deadline_misses": 15,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": false,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          },
+          {
+            "block_size": 128,
+            "export": {
+              "passed": true,
+              "max_error": 2.682209014892578e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "e157cd3a899f5d1c0a290e4c0b55b31d59f0441b018ade82716477e50cc6dd55",
+              "onnx_sha256": "fb5035e83f3cc177618b751f9de816f992e3e587971226429b1010ebae996446",
+              "block_size": 128,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  128
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  128
+                ],
+                "hidden": [
+                  1,
+                  1,
+                  16
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history AND next_hidden into next call; zero both on reset"
+            },
+            "trace_max_error": 2.384185791015625e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 2.384185791015625e-07,
+            "buffered_host_errors": {
+              "17": 2.384185791015625e-07,
+              "64": 2.384185791015625e-07,
+              "113": 2.384185791015625e-07,
+              "256": 2.384185791015625e-07,
+              "512": 2.384185791015625e-07
+            },
+            "latency_samples": 128,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 128,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.5634868,
+              "simulated_audio_seconds": 5.33333333333,
+              "mean_ms": 0.2812426,
+              "p95_ms": 0.44396,
+              "p99_ms": 0.583043,
+              "worst_ms": 1.0513,
+              "deadline_ms": 2.66666666667,
+              "p99_budget_fraction": 0.218641125,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          },
+          {
+            "block_size": 256,
+            "export": {
+              "passed": true,
+              "max_error": 2.384185791015625e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "e157cd3a899f5d1c0a290e4c0b55b31d59f0441b018ade82716477e50cc6dd55",
+              "onnx_sha256": "6fc9c86127ddf1d3886d77cca9fefea823a8cc70ad0e9b71cc0c5e1cf0f8866d",
+              "block_size": 256,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  256
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  128
+                ],
+                "hidden": [
+                  1,
+                  1,
+                  16
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history AND next_hidden into next call; zero both on reset"
+            },
+            "trace_max_error": 3.5762786865234375e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 2.384185791015625e-07,
+            "buffered_host_errors": {
+              "17": 2.384185791015625e-07,
+              "64": 2.384185791015625e-07,
+              "113": 2.384185791015625e-07,
+              "256": 2.384185791015625e-07,
+              "512": 2.384185791015625e-07
+            },
+            "latency_samples": 256,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 256,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.9432991,
+              "simulated_audio_seconds": 10.6666666667,
+              "mean_ms": 0.47092585,
+              "p95_ms": 0.67971,
+              "p99_ms": 0.848938,
+              "worst_ms": 1.3025,
+              "deadline_ms": 5.33333333333,
+              "p99_budget_fraction": 0.159175875,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          },
+          {
+            "block_size": 512,
+            "export": {
+              "passed": true,
+              "max_error": 2.682209014892578e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "e157cd3a899f5d1c0a290e4c0b55b31d59f0441b018ade82716477e50cc6dd55",
+              "onnx_sha256": "3107e3c2bf98b4fb56ecde37e2a381ac835ae2efe725d668486000f88468c177",
+              "block_size": 512,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  512
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  128
+                ],
+                "hidden": [
+                  1,
+                  1,
+                  16
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history AND next_hidden into next call; zero both on reset"
+            },
+            "trace_max_error": 3.5762786865234375e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 2.384185791015625e-07,
+            "buffered_host_errors": {
+              "17": 2.384185791015625e-07,
+              "64": 2.384185791015625e-07,
+              "113": 2.384185791015625e-07,
+              "256": 2.384185791015625e-07,
+              "512": 2.384185791015625e-07
+            },
+            "latency_samples": 512,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 512,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 1.5764672,
+              "simulated_audio_seconds": 21.3333333333,
+              "mean_ms": 0.7869232,
+              "p95_ms": 1.44931,
+              "p99_ms": 2.082684,
+              "worst_ms": 3.1843,
+              "deadline_ms": 10.6666666667,
+              "p99_budget_fraction": 0.195251625,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          }
+        ],
+        "host_plugin_checks": [],
+        "production_ready": false,
+        "parity_passed": true,
+        "native_screening_passed": false,
+        "remaining": [
+          "sustained paced scheduling check",
+          "ONNX Runtime internal allocation audit",
+          "Ableton/Audacity host checks",
+          "human listening and real captures"
+        ]
+      }
+    },
+    {
+      "path": "runs/native-hybrid-plugin-final/validation.json",
+      "sha256": "1d2b42a4752f30d6ee6aaa65a56c700905dd24b6bcec3740b59256fa9175988d",
+      "report": {
+        "checkpoint_sha256": "e157cd3a899f5d1c0a290e4c0b55b31d59f0441b018ade82716477e50cc6dd55",
+        "executable_sha256": "e04e7e570806da113bddfa025aa8b8aa4d18b7b9b17613dad62fe75dd0d4f2df",
+        "blocks": [
+          {
+            "block_size": 128,
+            "export": {
+              "passed": true,
+              "max_error": 2.682209014892578e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "e157cd3a899f5d1c0a290e4c0b55b31d59f0441b018ade82716477e50cc6dd55",
+              "onnx_sha256": "fb5035e83f3cc177618b751f9de816f992e3e587971226429b1010ebae996446",
+              "block_size": 128,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  128
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  128
+                ],
+                "hidden": [
+                  1,
+                  1,
+                  16
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history AND next_hidden into next call; zero both on reset"
+            },
+            "trace_max_error": 2.384185791015625e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 2.384185791015625e-07,
+            "buffered_host_errors": {
+              "17": 2.384185791015625e-07,
+              "64": 2.384185791015625e-07,
+              "113": 2.384185791015625e-07,
+              "256": 2.384185791015625e-07,
+              "512": 2.384185791015625e-07
+            },
+            "latency_samples": 128,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 128,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.3513066,
+              "simulated_audio_seconds": 5.33333333333,
+              "mean_ms": 0.17543635,
+              "p95_ms": 0.209215,
+              "p99_ms": 0.275214,
+              "worst_ms": 0.5675,
+              "deadline_ms": 2.66666666667,
+              "p99_budget_fraction": 0.10320525,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          }
+        ],
+        "host_plugin_checks": [
+          {
+            "host_block": 17,
+            "max_error": 2.384185791015625e-07,
+            "passed": true
+          },
+          {
+            "host_block": 64,
+            "max_error": 2.384185791015625e-07,
+            "passed": true
+          },
+          {
+            "host_block": 113,
+            "max_error": 2.384185791015625e-07,
+            "passed": true
+          },
+          {
+            "host_block": 256,
+            "max_error": 2.384185791015625e-07,
+            "passed": true
+          },
+          {
+            "host_block": 512,
+            "max_error": 2.384185791015625e-07,
+            "passed": true
+          }
+        ],
+        "production_ready": false,
+        "parity_passed": true,
+        "native_screening_passed": true,
+        "remaining": [
+          "sustained paced scheduling check",
+          "ONNX Runtime internal allocation audit",
+          "Ableton/Audacity host checks",
+          "human listening and real captures"
+        ]
+      }
+    },
+    {
+      "path": "runs/native-v2-final/validation.json",
+      "sha256": "a83738d9767a74c6b6118350936c4dd4ee7ab08c4ed91da74e804d14397bd258",
+      "report": {
+        "checkpoint_sha256": "2fe90b905a0befb96505f8f92aca9179eacfe8704357471fd1c7f27a8b47f130",
+        "executable_sha256": "e04e7e570806da113bddfa025aa8b8aa4d18b7b9b17613dad62fe75dd0d4f2df",
+        "blocks": [
+          {
+            "block_size": 64,
+            "export": {
+              "passed": true,
+              "max_error": 4.76837158203125e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "2fe90b905a0befb96505f8f92aca9179eacfe8704357471fd1c7f27a8b47f130",
+              "onnx_sha256": "15f7a0391a3de4ec90fdf4f5e50780620e4ff46939eb96071cc69e7d4d8aefd7",
+              "block_size": 64,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  64
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  62
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history into next call; zero on stream reset"
+            },
+            "trace_max_error": 4.76837158203125e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 4.76837158203125e-07,
+            "buffered_host_errors": {
+              "17": 4.76837158203125e-07,
+              "64": 4.76837158203125e-07,
+              "113": 4.76837158203125e-07,
+              "256": 4.76837158203125e-07,
+              "512": 4.76837158203125e-07
+            },
+            "latency_samples": 64,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 64,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.1264386,
+              "simulated_audio_seconds": 2.66666666667,
+              "mean_ms": 0.06309015,
+              "p95_ms": 0.087815,
+              "p99_ms": 0.110718,
+              "worst_ms": 0.3554,
+              "deadline_ms": 1.33333333333,
+              "p99_budget_fraction": 0.0830385,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          },
+          {
+            "block_size": 128,
+            "export": {
+              "passed": true,
+              "max_error": 4.76837158203125e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "2fe90b905a0befb96505f8f92aca9179eacfe8704357471fd1c7f27a8b47f130",
+              "onnx_sha256": "11cc8b1f48dcdeed9df980f50fec941e2fff2780f191736a2ea226a6e8de7f31",
+              "block_size": 128,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  128
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  62
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history into next call; zero on stream reset"
+            },
+            "trace_max_error": 2.980232238769531e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 4.76837158203125e-07,
+            "buffered_host_errors": {
+              "17": 4.76837158203125e-07,
+              "64": 4.76837158203125e-07,
+              "113": 4.76837158203125e-07,
+              "256": 4.76837158203125e-07,
+              "512": 4.76837158203125e-07
+            },
+            "latency_samples": 128,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 128,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.1481112,
+              "simulated_audio_seconds": 5.33333333333,
+              "mean_ms": 0.07390935,
+              "p95_ms": 0.096505,
+              "p99_ms": 0.120703,
+              "worst_ms": 0.2508,
+              "deadline_ms": 2.66666666667,
+              "p99_budget_fraction": 0.045263625,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          },
+          {
+            "block_size": 256,
+            "export": {
+              "passed": true,
+              "max_error": 5.21540641784668e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "2fe90b905a0befb96505f8f92aca9179eacfe8704357471fd1c7f27a8b47f130",
+              "onnx_sha256": "465f16878fe1656010301452657144cf75f9d8eb4224d894e25e14c61f1b8d75",
+              "block_size": 256,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  256
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  62
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history into next call; zero on stream reset"
+            },
+            "trace_max_error": 4.76837158203125e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 4.76837158203125e-07,
+            "buffered_host_errors": {
+              "17": 4.76837158203125e-07,
+              "64": 4.76837158203125e-07,
+              "113": 4.76837158203125e-07,
+              "256": 4.76837158203125e-07,
+              "512": 4.76837158203125e-07
+            },
+            "latency_samples": 256,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 256,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.1685269,
+              "simulated_audio_seconds": 10.6666666667,
+              "mean_ms": 0.08412965,
+              "p95_ms": 0.0955,
+              "p99_ms": 0.127418,
+              "worst_ms": 0.1944,
+              "deadline_ms": 5.33333333333,
+              "p99_budget_fraction": 0.023890875,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          },
+          {
+            "block_size": 512,
+            "export": {
+              "passed": true,
+              "max_error": 4.842877388000488e-07,
+              "tolerance": 1e-05,
+              "checkpoint_sha256": "2fe90b905a0befb96505f8f92aca9179eacfe8704357471fd1c7f27a8b47f130",
+              "onnx_sha256": "a148b87c6bc5f7b339c772ba1fee4d77cc5f9a6a7979c137681439dce8a076df",
+              "block_size": 512,
+              "sample_rate": 48000,
+              "inputs": {
+                "audio": [
+                  1,
+                  1,
+                  512
+                ],
+                "controls": [
+                  1,
+                  2
+                ],
+                "history": [
+                  1,
+                  1,
+                  62
+                ]
+              },
+              "control_order": [
+                "drive",
+                "mix"
+              ],
+              "exporter": "torch.onnx dynamo=True",
+              "state_policy": "Carry next_history into next call; zero on stream reset"
+            },
+            "trace_max_error": 3.5762786865234375e-07,
+            "reset_max_error": 0.0,
+            "wav_max_error": 4.76837158203125e-07,
+            "buffered_host_errors": {
+              "17": 4.76837158203125e-07,
+              "64": 4.76837158203125e-07,
+              "113": 4.76837158203125e-07,
+              "256": 4.76837158203125e-07,
+              "512": 4.76837158203125e-07
+            },
+            "latency_samples": 512,
+            "benchmark": {
+              "runtime": "native ONNX Runtime CPU",
+              "onnxruntime": "1.23.2",
+              "sample_rate": 48000,
+              "block_size": 512,
+              "iterations": 2000,
+              "paced": false,
+              "wall_seconds": 0.2445747,
+              "simulated_audio_seconds": 21.3333333333,
+              "mean_ms": 0.12212215,
+              "p95_ms": 0.13981,
+              "p99_ms": 0.180602,
+              "worst_ms": 0.2837,
+              "deadline_ms": 10.6666666667,
+              "p99_budget_fraction": 0.0169314375,
+              "processing_deadline_misses": 0,
+              "scheduling_deadline_misses": 0,
+              "application_new_calls": 0,
+              "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+              "screening_passed": true,
+              "sustained_scheduling_passed": false,
+              "production_ready": false
+            },
+            "parity_passed": true
+          }
+        ],
+        "host_plugin_checks": [
+          {
+            "host_block": 17,
+            "max_error": 4.76837158203125e-07,
+            "passed": true
+          },
+          {
+            "host_block": 64,
+            "max_error": 4.76837158203125e-07,
+            "passed": true
+          },
+          {
+            "host_block": 113,
+            "max_error": 4.76837158203125e-07,
+            "passed": true
+          },
+          {
+            "host_block": 256,
+            "max_error": 4.76837158203125e-07,
+            "passed": true
+          },
+          {
+            "host_block": 512,
+            "max_error": 4.76837158203125e-07,
+            "passed": true
+          }
+        ],
+        "production_ready": false,
+        "parity_passed": true,
+        "native_screening_passed": true,
+        "remaining": [
+          "sustained paced scheduling check",
+          "ONNX Runtime internal allocation audit",
+          "Ableton/Audacity host checks",
+          "human listening and real captures"
+        ]
+      }
+    }
+  ],
+  "native_qualification": "Initial full-hybrid 64-sample timing failed while builds were active; preserved as measured. Final short timing screens do not override the sustained failure. Executable new-call counters exclude DLL internals and malloc.",
+  "packaged_host_checks": {
+    "path": "runs/preview-host-checks.json",
+    "sha256": "73d7ba93bd1400bf2bdbfac7507c5a7b0061c159d8022398c5095f5a7c098584",
+    "report": {
+      "model_sha256": "11cc8b1f48dcdeed9df980f50fec941e2fff2780f191736a2ea226a6e8de7f31",
+      "host_sha256": "f1af45213e626cd7280b69a94dd09e1d0623c0b641a885ecc653f13dbae20c59",
+      "checks": [
+        {
+          "host_block": 17,
+          "max_error": 0.0,
+          "latency_samples": 128,
+          "samples": 1777,
+          "stereo_consistent": true,
+          "reset_reproducible": true,
+          "editor_created": true
+        },
+        {
+          "host_block": 64,
+          "max_error": 0.0,
+          "latency_samples": 128,
+          "samples": 1777,
+          "stereo_consistent": true,
+          "reset_reproducible": true,
+          "editor_created": true
+        },
+        {
+          "host_block": 113,
+          "max_error": 0.0,
+          "latency_samples": 128,
+          "samples": 1777,
+          "stereo_consistent": true,
+          "reset_reproducible": true,
+          "editor_created": true
+        },
+        {
+          "host_block": 256,
+          "max_error": 0.0,
+          "latency_samples": 128,
+          "samples": 1777,
+          "stereo_consistent": true,
+          "reset_reproducible": true,
+          "editor_created": true
+        },
+        {
+          "host_block": 512,
+          "max_error": 0.0,
+          "latency_samples": 128,
+          "samples": 1777,
+          "stereo_consistent": true,
+          "reset_reproducible": true,
+          "editor_created": true
+        }
+      ],
+      "passed": true
+    }
+  },
+  "official_validator": {
+    "path": "runs/vst3-preview-final/validator.json",
+    "sha256": "e6131a8fc4a937410f493660e71eb34a18b7a4bec6b6cebec036f73000f9dd16",
+    "report": {
+      "validator_sha256": "2d0777e630690dc1e5b441d15a72cb6a49f5a4dd7da0f80c3c1dd144c699899e",
+      "plugin": "C:\\Users\\david\\GitHub\\personal\\neural-audio-rd\\exports\\preview-v2\\VST3\\NeuralAudioFX.vst3",
+      "plugin_files_sha256": {
+        "Contents\\Resources\\moduleinfo.json": "897d4fab488ce11478b637204c5657335032d2ba46645d4dc6f0f41d37ad0151",
+        "Contents\\x86_64-win\\NeuralAudioFX.vst3": "18f6c7d95d0f0685dbde251f5fe1593b5c65b9fb98fc0e2916c27c6cd2d4bae2",
+        "Contents\\x86_64-win\\neural_fx_ort_123.dll": "dec964ab1ee36cc9b0ae247d13b376627992fc57dec0454354017ab8fd84f1ea"
+      },
+      "cases": [
+        {
+          "case": "default",
+          "returncode": 0,
+          "tests_passed": 47,
+          "tests_failed": 0,
+          "passed": true,
+          "model_sha256": null
+        },
+        {
+          "case": "loaded_model",
+          "returncode": 0,
+          "tests_passed": 47,
+          "tests_failed": 0,
+          "passed": true,
+          "model_sha256": "11cc8b1f48dcdeed9df980f50fec941e2fff2780f191736a2ea226a6e8de7f31"
+        }
+      ],
+      "passed": true,
+      "production_ready": false,
+      "scope": "Official VST3 conformity tests; not a DAW host check, fidelity claim or allocation audit"
+    }
+  },
+  "official_validator_hybrid": {
+    "path": "runs/vst3-hybrid-final/validator.json",
+    "sha256": "06000f5171420b9fffa91cc54df3834687bfaa8550af830ba445bec6a824e4d1",
+    "report": {
+      "validator_sha256": "2d0777e630690dc1e5b441d15a72cb6a49f5a4dd7da0f80c3c1dd144c699899e",
+      "plugin": "C:\\Users\\david\\GitHub\\personal\\neural-audio-rd\\build\\native\\plugin\\NeuralAudioFX_artefacts\\Release\\VST3\\NeuralAudioFX.vst3",
+      "plugin_files_sha256": {
+        "Contents\\Resources\\moduleinfo.json": "897d4fab488ce11478b637204c5657335032d2ba46645d4dc6f0f41d37ad0151",
+        "Contents\\x86_64-win\\NeuralAudioFX.vst3": "18f6c7d95d0f0685dbde251f5fe1593b5c65b9fb98fc0e2916c27c6cd2d4bae2",
+        "Contents\\x86_64-win\\neural_fx_ort_123.dll": "dec964ab1ee36cc9b0ae247d13b376627992fc57dec0454354017ab8fd84f1ea",
+        "Contents\\x86_64-win\\onnxruntime.dll": "dec964ab1ee36cc9b0ae247d13b376627992fc57dec0454354017ab8fd84f1ea"
+      },
+      "cases": [
+        {
+          "case": "default",
+          "returncode": 0,
+          "tests_passed": 47,
+          "tests_failed": 0,
+          "passed": true,
+          "model_sha256": null
+        },
+        {
+          "case": "loaded_model",
+          "returncode": 0,
+          "tests_passed": 47,
+          "tests_failed": 0,
+          "passed": true,
+          "model_sha256": "fb5035e83f3cc177618b751f9de816f992e3e587971226429b1010ebae996446"
+        }
+      ],
+      "passed": true,
+      "production_ready": false,
+      "scope": "Official VST3 conformity tests; not a DAW host check, fidelity claim or allocation audit"
+    }
+  },
+  "sustained_native": {
+    "path": "runs/native-sustain-600.json",
+    "sha256": "27048502c7f7b0d122297b19c84d9d46e1b15a1dc5415e07a85e0d581f428b4e",
+    "report": {
+      "runtime": "native ONNX Runtime CPU",
+      "onnxruntime": "1.23.2",
+      "sample_rate": 48000,
+      "block_size": 128,
+      "iterations": 225001,
+      "paced": true,
+      "wall_seconds": 600.0002746,
+      "simulated_audio_seconds": 600.002666667,
+      "mean_ms": 0.202399610668,
+      "p95_ms": 0.412,
+      "p99_ms": 0.6912,
+      "worst_ms": 8.7545,
+      "deadline_ms": 2.66666666667,
+      "p99_budget_fraction": 0.2592,
+      "processing_deadline_misses": 40,
+      "scheduling_deadline_misses": 296,
+      "application_new_calls": 0,
+      "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+      "screening_passed": false,
+      "sustained_scheduling_passed": false,
+      "production_ready": false,
+      "executable_sha256": "e04e7e570806da113bddfa025aa8b8aa4d18b7b9b17613dad62fe75dd0d4f2df",
+      "onnx_sha256": "11cc8b1f48dcdeed9df980f50fec941e2fff2780f191736a2ea226a6e8de7f31",
+      "environment": {
+        "git_commit": "802cad28d2359f2238c32d0e52321ee936fad69e",
+        "git_status": "M .github/workflows/ci.yml\n M .gitignore\n M MODEL_CARD.md\n M README.md\n M reports/INITIAL_RESULTS.md\n M src/neural_fx/cli.py\n M src/neural_fx/data.py\n M src/neural_fx/models.py\n M src/neural_fx/pipeline.py\n M src/neural_fx/runtime.py\n M tests/test_dsp_models.py\n M tests/test_prepare_listening_export.py\n?? THIRD_PARTY_NOTICES.md\n?? configs/control_generalization_v2.json\n?? configs/p3-study/\n?? configs/reference_transfer.json\n?? deploy/\n?? docs/\n?? reports/manual-acceptance.template.json\n?? reports/p3-completed-analysis.json\n?? reports/p5-onnx-screening.json\n?? reports/reference-v1-initial.json\n?? reports/research-01-review.json\n?? src/neural_fx/native.py\n?? src/neural_fx/reference.py\n?? src/neural_fx/study.py\n?? tests/test_native_reference.py\n?? tests/test_runtime_statistics.py\n?? tests/test_study.py",
+        "python": "3.13.15",
+        "platform": "Windows-11-10.0.26300-SP0",
+        "cpu": "AMD64 Family 25 Model 117 Stepping 2, AuthenticAMD",
+        "device": "cpu",
+        "threads": 8,
+        "dependencies": {
+          "numpy": "2.5.3",
+          "scipy": "1.18.1",
+          "torch": "2.11.0+cu128"
+        },
+        "source_sha256": {
+          "__init__.py": "ca63924dd91f0f44a349c1c4e0a4429c879c6bd67840ba70b55d0e9de48c5c2b",
+          "__main__.py": "6d8b7d7846a845059d7a3107143f11131f63c5511d669b44085b15ec5e3d2279",
+          "cli.py": "2f756fb2aa531d6886a5ef983d3542251482d69b13ff8745f2a5633d7094b2cd",
+          "data.py": "62867ffdb10bd699de61c0aac6c82d117cb6a875fa4874afc2138e5ac259c5fc",
+          "dsp.py": "404666b9c4d0e6d3cd1a9b0523e471b12fc37b1f7fd08b0919f7e94cd5d62c96",
+          "experiment.py": "38b877e2ed7641e5d50cd40c1eb8f51f0d35d1d00250cfd9078aaf0a414ffc13",
+          "listening.py": "03df694970acf6cfc89459fa5398a816c2540cf3261a75b09d5c3bb81f95dddd",
+          "models.py": "a760f37224fbf1ebe8a28f67b949668c7a1da9678e22d19e17545290e799aeb0",
+          "native.py": "97c32fa7dabbbcd6769504cc5315eb7661cce6cf0c7b9c07bacc644dfedab84f",
+          "pipeline.py": "1096cf7db314180c7d07705d9ff0850c07900623c0b7e1251f330b93921a8ce2",
+          "prepare.py": "c3faa5e3586aca2169fdc713274cb7a5a52025e07d3ec5801797728feb8ae30b",
+          "reference.py": "44eea6e08bae781b4a3b276ca7143b2bdb6b401ed84340289e5d242405d17d45",
+          "runtime.py": "c52ca2a2fcdee9050a4c1ab06d467e4a3506def6360cf831c7a3ecedcf0f4896",
+          "study.py": "95aee511e450ffb5b58563e2e29d6e66b0dd5532f14628c9ed53ef88d81a1b0a",
+          "utils.py": "e38eefd89e1ceaea5b8aa4e0b5a181949449d9eee5523a19a40547c1e638860c"
+        }
+      }
+    }
+  },
+  "preview_manifest": {
+    "path": "exports/preview-v2/manifest.json",
+    "sha256": "568775eeedb8b80ffadb83e64974b799a17fac997e89f7d57b992af600c54f8f",
+    "report": {
+      "scope": "local Windows x64 development preview; not installed or published",
+      "validation_sha256": "a83738d9767a74c6b6118350936c4dd4ee7ab08c4ed91da74e804d14397bd258",
+      "production_ready": false,
+      "files_sha256": {
+        "demo-input.wav": "4722567433e580a3fb358f6aaf809072df62333b072d53597ba0f538f929a2e7",
+        "demo-rendered.wav": "eafdb16f5583b9821b9dfe8380577eb3adc891e10d9fc5d3cd8b96748ea130be",
+        "Launch-NeuralFX.cmd": "4d65138ba9cc931b3296a627e74d046c3bc9a68bee3cd0e71c6e854d5c12ccee",
+        "licenses\\JUCE-8.0.12-LICENSE.md": "2633539bb26d244f0966fbc4df59400ea99bdf575fa96291851c1c3ff3456146",
+        "licenses\\onnxruntime-win-x64-1.23.2-LICENSE": "c250d6278f0b47a6439fb7592b08b58a55eb9f535aa49a1db63211c3f982b674",
+        "licenses\\onnxruntime-win-x64-1.23.2-ThirdPartyNotices.txt": "e00f828e0a33de591a355ae6606d2625f5758da7d2c844db7821c9dd3e3647b6",
+        "models\\conditional_tcn-128.onnx": "11cc8b1f48dcdeed9df980f50fec941e2fff2780f191736a2ea226a6e8de7f31",
+        "models\\conditional_tcn-256.onnx": "465f16878fe1656010301452657144cf75f9d8eb4224d894e25e14c61f1b8d75",
+        "models\\conditional_tcn-512.onnx": "a148b87c6bc5f7b339c772ba1fee4d77cc5f9a6a7979c137681439dce8a076df",
+        "models\\conditional_tcn-64.onnx": "15f7a0391a3de4ec90fdf4f5e50780620e4ff46939eb96071cc69e7d4d8aefd7",
+        "presets\\reference-example.json": "8934ba9749b9238ea14d43f984dc731161f22ec2849b736d618e4733c21d811c",
+        "README.txt": "778780acc06ac3b325f13dc57779b18fc143e7165b2ea8057e78d2b4cd03a45d",
+        "Renderer\\nafx-render.exe": "e04e7e570806da113bddfa025aa8b8aa4d18b7b9b17613dad62fe75dd0d4f2df",
+        "Renderer\\neural_fx_ort_123.dll": "dec964ab1ee36cc9b0ae247d13b376627992fc57dec0454354017ab8fd84f1ea",
+        "Standalone\\neural_fx_ort_123.dll": "dec964ab1ee36cc9b0ae247d13b376627992fc57dec0454354017ab8fd84f1ea",
+        "Standalone\\NeuralAudioFX.exe": "b93d2b59ae449908689b541d9b776edbef2bb322f1b8090de8d2bd7f039bf80f",
+        "VST3\\NeuralAudioFX.vst3\\Contents\\Resources\\moduleinfo.json": "897d4fab488ce11478b637204c5657335032d2ba46645d4dc6f0f41d37ad0151",
+        "VST3\\NeuralAudioFX.vst3\\Contents\\x86_64-win\\neural_fx_ort_123.dll": "dec964ab1ee36cc9b0ae247d13b376627992fc57dec0454354017ab8fd84f1ea",
+        "VST3\\NeuralAudioFX.vst3\\Contents\\x86_64-win\\NeuralAudioFX.vst3": "18f6c7d95d0f0685dbde251f5fe1593b5c65b9fb98fc0e2916c27c6cd2d4bae2"
+      }
+    }
+  },
+  "automated_tests": {
+    "command": "python -m pytest -q --basetemp runs/pytest-phases-final --tb=short",
+    "passed": 58,
+    "failed": 0,
+    "warnings": 9,
+    "duration_seconds": 23.68,
+    "remote_ci_executed": false
+  },
+  "external_acceptance": {
+    "template": "reports/manual-acceptance.template.json",
+    "real_capture_evaluation": "deferred by user",
+    "target_daw_tests": "pending",
+    "human_listening": "pending",
+    "clean_machine_reproduction": "pending",
+    "runtime_internal_allocation_audit": "pending",
+    "sustained_timing": "failed; investigate worst-case execution and target-host scheduling"
+  },
+  "guide": "docs/NATIVE_AND_REFERENCE.html"
+}

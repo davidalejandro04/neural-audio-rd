@@ -24,7 +24,7 @@ class CausalBlock(nn.Module):
 
 
 class AudioModel(nn.Module):
-    def __init__(self, name="conditional_tcn", channels=8, dilations=(1, 2, 4), fir_taps=33):
+    def __init__(self, name="conditional_tcn", channels=8, dilations=(1, 2, 4), fir_taps=33, wet_only_conditioning=False):
         super().__init__()
         supported = ("conv1d", "tcn", "conditional_tcn", "gru", "hybrid", "hybrid_no_gru", "hybrid_no_fir")
         if name not in supported:
@@ -32,6 +32,7 @@ class AudioModel(nn.Module):
         if channels < 1 or fir_taps < 1 or not dilations or any(d < 1 for d in dilations):
             raise ValueError("Positive channels, FIR taps, and dilations required")
         self.name, self.channels = name, channels
+        self.wet_only_conditioning = wet_only_conditioning
         self.has_tcn = name != "gru"
         self.has_gru = name in ("gru", "hybrid", "hybrid_no_fir")
         self.has_fir = name in ("hybrid", "hybrid_no_gru")
@@ -61,22 +62,25 @@ class AudioModel(nn.Module):
 
     def process(self, x, controls, history, hidden):
         joined = torch.cat((history, x), dim=-1)
+        # Prospective v2: infer the fully wet path from drive; apply mix once at output.
+        # The default retains exact historical checkpoint behavior.
+        conditioned_controls = torch.cat((controls[:, :1], torch.ones_like(controls[:, 1:2])), dim=1) if self.wet_only_conditioning else controls
         outputs = []
         if self.has_tcn:
             z = self.input(joined)
             for block in self.blocks:
-                z = block(z, controls)
+                z = block(z, conditioned_controls)
             outputs.append(self.output(z)[..., self.history_samples:])
         if self.has_gru:
-            repeated = controls.unsqueeze(1).expand(-1, x.shape[-1], -1)
+            repeated = conditioned_controls.unsqueeze(1).expand(-1, x.shape[-1], -1)
             z, hidden = self.gru(torch.cat((x.transpose(1, 2), repeated), dim=-1), hidden)
             outputs.append(self.gru_output(z).transpose(1, 2))
         if self.has_fir:
             basis = self.fir(F.pad(joined, (self.fir_taps - 1, 0)))[..., self.history_samples:]
-            weights = self.fir_controls(controls).unsqueeze(-1)
+            weights = self.fir_controls(conditioned_controls).unsqueeze(-1)
             outputs.append((basis * weights).sum(dim=1, keepdim=True))
         if self.router is not None:
-            weights = self.router(controls).softmax(dim=-1)
+            weights = self.router(conditioned_controls).softmax(dim=-1)
             residual = sum(z * weights[:, i:i+1, None] for i, z in enumerate(outputs))
         else:
             residual = outputs[0]

@@ -59,3 +59,16 @@ def test_metrics_perfect_and_silence():
     result = metrics(x, x)
     assert result["esr"] == 0 and result["mrstft"] == 0 and result["lsd_db"] == 0
     assert metrics(torch.zeros_like(x), torch.zeros_like(x))["esr"] is None
+
+
+@pytest.mark.parametrize("name", ["conditional_tcn", "gru", "hybrid", "hybrid_no_gru"])
+def test_wet_path_v2_obeys_physical_mix_law(name):
+    model = AudioModel(name, wet_only_conditioning=True).eval()
+    x = torch.randn(1, 1, 535) * 0.2
+    with torch.inference_mode():
+        fully_wet = model(x, torch.tensor([[0.4, 1.0]]))
+        for mix in (0.0, 0.3, 0.7):
+            controls = torch.tensor([[0.4, mix]])
+            expected = (1 - mix) * x + mix * fully_wet
+            torch.testing.assert_close(model(x, controls), expected, atol=1e-6, rtol=1e-5)
+            torch.testing.assert_close(stream(model, x, controls, (17, 64, 113)), expected, atol=1e-6, rtol=1e-5)

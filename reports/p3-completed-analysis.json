@@ -1,0 +1,130 @@
+{
+  "state": "analyzed",
+  "plan_sha256": "db807d62ac17c7e67bbceae32cebf98b3db386aa9b9ced824ebd9aa8f4af907b",
+  "missing_runs": [],
+  "effects": {
+    "distortion": {
+      "primary": {
+        "sources": 20,
+        "seeds": 3,
+        "metrics": {
+          "esr": {
+            "baseline": 0.076354082873756,
+            "candidate": 0.09336708699827276,
+            "relative_improvement": -0.22281721532358778,
+            "absolute_improvement_95_ci": [
+              -0.18010007435519004,
+              0.16311886602103381
+            ],
+            "improvement_supported": false
+          },
+          "mrstft": {
+            "baseline": 0.28788093806554876,
+            "candidate": 0.3140231618036826,
+            "relative_improvement": -0.09080915156731018,
+            "absolute_improvement_95_ci": [
+              -0.24091775218645733,
+              0.2564223235519598
+            ],
+            "improvement_supported": false
+          }
+        }
+      },
+      "held_out_controls": {
+        "sources": 20,
+        "seeds": 3,
+        "metrics": {
+          "esr": {
+            "baseline": 0.189559289867902,
+            "candidate": 0.23282387597337095,
+            "relative_improvement": -0.22823775155318798,
+            "absolute_improvement_95_ci": [
+              -0.45074410849274493,
+              0.4076026033486543
+            ],
+            "improvement_supported": false
+          },
+          "mrstft": {
+            "baseline": 0.6302933370073636,
+            "candidate": 0.6932959693173568,
+            "relative_improvement": -0.0999576365651113,
+            "absolute_improvement_95_ci": [
+              -0.6044591218233109,
+              0.6704630194231865
+            ],
+            "improvement_supported": false
+          }
+        }
+      },
+      "parameter_match": true,
+      "runtime_screening": false,
+      "streaming": true,
+      "engineering_quality": false,
+      "quality_hypothesis_supported": false,
+      "accepted": false
+    },
+    "cabinet": {
+      "primary": {
+        "sources": 20,
+        "seeds": 3,
+        "metrics": {
+          "esr": {
+            "baseline": 0.749864480373645,
+            "candidate": 0.014932014445722673,
+            "relative_improvement": 0.9800870492781811,
+            "absolute_improvement_95_ci": [
+              0.013326616906283255,
+              2.1302204006503187
+            ],
+            "improvement_supported": true
+          },
+          "mrstft": {
+            "baseline": 0.6446547202765942,
+            "candidate": 0.15548865472277007,
+            "relative_improvement": 0.7588032014160132,
+            "absolute_improvement_95_ci": [
+              0.060726909507065996,
+              1.0059701189398766
+            ],
+            "improvement_supported": true
+          }
+        }
+      },
+      "held_out_controls": {
+        "sources": 20,
+        "seeds": 3,
+        "metrics": {
+          "esr": {
+            "baseline": 1.84600776932777,
+            "candidate": 0.03452188915776748,
+            "relative_improvement": 0.981299163670184,
+            "absolute_improvement_95_ci": [
+              0.001339209090240908,
+              5.288793532779693
+            ],
+            "improvement_supported": true
+          },
+          "mrstft": {
+            "baseline": 1.3475654038290181,
+            "candidate": 0.27900816003481543,
+            "relative_improvement": 0.7929539009817023,
+            "absolute_improvement_95_ci": [
+              -0.030521705746650696,
+              2.349914249032736
+            ],
+            "improvement_supported": false
+          }
+        }
+      },
+      "parameter_match": true,
+      "runtime_screening": false,
+      "streaming": true,
+      "engineering_quality": false,
+      "quality_hypothesis_supported": true,
+      "accepted": false
+    }
+  },
+  "p3_accepted": false,
+  "production_ready": false,
+  "interpretation": "Negative or inconclusive results remain valid. Synthetic acceptance does not establish hardware fidelity, native real-time behavior, or reference transfer. Bootstrap intervals are exploratory with three seeds."
+}

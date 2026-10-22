@@ -11,6 +11,8 @@ build/
 dist/
 .ruff_cache/
 .deps/
-/docs
+configs/p3-study/runs/
 deep-research-report.md
 deep-research-report.html
+/configs
+/docs/course
