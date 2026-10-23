@@ -1,0 +1,215 @@
+{
+  "scope": "Synthetic sample audition and redesigned editor; no new sustained timing or perceptual acceptance",
+  "preview": "exports/preview-v3",
+  "production_ready": false,
+  "ui": {
+    "latency_samples": 128,
+    "stereo_consistent": true,
+    "reset_reproducible": true,
+    "editor_created": true,
+    "loop_parity": true,
+    "dry_latency_aligned": true,
+    "nonloop_parity": true,
+    "stop_restores_live_input": true,
+    "audition_checked": true
+  },
+  "host_checks": [
+    {
+      "latency_samples": 128,
+      "samples": 1777,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "host_block": 17,
+      "max_error": 0.0
+    },
+    {
+      "latency_samples": 128,
+      "samples": 1777,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "host_block": 64,
+      "max_error": 0.0
+    },
+    {
+      "latency_samples": 128,
+      "samples": 1777,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "host_block": 113,
+      "max_error": 0.0
+    },
+    {
+      "latency_samples": 128,
+      "samples": 1777,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "host_block": 256,
+      "max_error": 0.0
+    },
+    {
+      "latency_samples": 128,
+      "samples": 1777,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "host_block": 512,
+      "max_error": 0.0
+    }
+  ],
+  "validator": {
+    "validator_sha256": "2d0777e630690dc1e5b441d15a72cb6a49f5a4dd7da0f80c3c1dd144c699899e",
+    "plugin": "C:\\Users\\david\\GitHub\\personal\\neural-audio-rd\\exports\\preview-v3\\VST3\\NeuralAudioFX.vst3",
+    "plugin_files_sha256": {
+      "Contents\\Resources\\moduleinfo.json": "897d4fab488ce11478b637204c5657335032d2ba46645d4dc6f0f41d37ad0151",
+      "Contents\\x86_64-win\\NeuralAudioFX.vst3": "7903d4efeddd40af8451a5a9bdb88b93bc2402d623d70cdc47146b2ed3de30e8",
+      "Contents\\x86_64-win\\neural_fx_ort_123.dll": "dec964ab1ee36cc9b0ae247d13b376627992fc57dec0454354017ab8fd84f1ea"
+    },
+    "cases": [
+      {
+        "case": "default",
+        "returncode": 0,
+        "tests_passed": 47,
+        "tests_failed": 0,
+        "passed": true,
+        "model_sha256": null
+      },
+      {
+        "case": "loaded_model",
+        "returncode": 0,
+        "tests_passed": 47,
+        "tests_failed": 0,
+        "passed": true,
+        "model_sha256": "11cc8b1f48dcdeed9df980f50fec941e2fff2780f191736a2ea226a6e8de7f31"
+      }
+    ],
+    "passed": true,
+    "production_ready": false,
+    "scope": "Official VST3 conformity tests; not a DAW host check, fidelity claim or allocation audit"
+  },
+  "preview_manifest_sha256": "122b125b582b4cf3c3200bb89e76d4ed380b2d36c0444c99e790580ae1f670b8",
+  "sample_manifest": {
+    "scope": "Synthetic distortion audition samples, not hardware recordings or new evaluation evidence",
+    "provenance": "Existing procedurally generated test split; CC0-1.0 source audio",
+    "source_manifest_sha256": "dce7e9f62cd87c20609a30e964f717ecaca42d9ae6e5b9ce1e60f3c2af91b344",
+    "clips": [
+      {
+        "name": "Dataset sequence / Drive 30%",
+        "dry": "sequence-1-dry.wav",
+        "wet": "sequence-1-wet.wav",
+        "drive": 0.3,
+        "mix": 1.0,
+        "sample_rate": 48000,
+        "source_pairs": [
+          "test_source_0000_preset_0",
+          "test_source_0001_preset_0",
+          "test_source_0002_preset_0",
+          "test_source_0003_preset_0",
+          "test_source_0004_preset_0",
+          "test_source_0005_preset_0",
+          "test_source_0006_preset_0",
+          "test_source_0007_preset_0",
+          "test_source_0008_preset_0",
+          "test_source_0009_preset_0",
+          "test_source_0010_preset_0",
+          "test_source_0011_preset_0"
+        ],
+        "transform": "concatenated dry sources; 5 ms edge fades; 100 ms gaps; wet recomputed with known DSP"
+      },
+      {
+        "name": "Dataset sequence / Drive 70%",
+        "dry": "sequence-2-dry.wav",
+        "wet": "sequence-2-wet.wav",
+        "drive": 0.7,
+        "mix": 1.0,
+        "sample_rate": 48000,
+        "source_pairs": [
+          "test_source_0000_preset_1",
+          "test_source_0001_preset_1",
+          "test_source_0002_preset_1",
+          "test_source_0003_preset_1",
+          "test_source_0004_preset_1",
+          "test_source_0005_preset_1",
+          "test_source_0006_preset_1",
+          "test_source_0007_preset_1",
+          "test_source_0008_preset_1",
+          "test_source_0009_preset_1",
+          "test_source_0010_preset_1",
+          "test_source_0011_preset_1"
+        ],
+        "transform": "concatenated dry sources; 5 ms edge fades; 100 ms gaps; wet recomputed with known DSP"
+      },
+      {
+        "name": "Source 01 / Drive 30%",
+        "dry": "source-1-1-dry.wav",
+        "wet": "source-1-1-wet.wav",
+        "drive": 0.3,
+        "mix": 1.0,
+        "sample_rate": 48000,
+        "source_pairs": [
+          "test_source_0000_preset_0"
+        ],
+        "transform": "byte-identical dataset pair"
+      },
+      {
+        "name": "Source 02 / Drive 30%",
+        "dry": "source-1-2-dry.wav",
+        "wet": "source-1-2-wet.wav",
+        "drive": 0.3,
+        "mix": 1.0,
+        "sample_rate": 48000,
+        "source_pairs": [
+          "test_source_0001_preset_0"
+        ],
+        "transform": "byte-identical dataset pair"
+      },
+      {
+        "name": "Source 03 / Drive 70%",
+        "dry": "source-2-1-dry.wav",
+        "wet": "source-2-1-wet.wav",
+        "drive": 0.7,
+        "mix": 1.0,
+        "sample_rate": 48000,
+        "source_pairs": [
+          "test_source_0000_preset_1"
+        ],
+        "transform": "byte-identical dataset pair"
+      },
+      {
+        "name": "Source 04 / Drive 70%",
+        "dry": "source-2-2-dry.wav",
+        "wet": "source-2-2-wet.wav",
+        "drive": 0.7,
+        "mix": 1.0,
+        "sample_rate": 48000,
+        "source_pairs": [
+          "test_source_0001_preset_1"
+        ],
+        "transform": "byte-identical dataset pair"
+      }
+    ],
+    "files_sha256": {
+      "sequence-1-dry.wav": "2d2bf1cea42035d71dbaba6a5db842cd34cbcb6660a59860d54d7a29b728dccc",
+      "sequence-1-wet.wav": "f3d38486cc3eca20a96cd45996b9a49b90c742b62a0f3ed604222d927e4448ec",
+      "sequence-2-dry.wav": "2d2bf1cea42035d71dbaba6a5db842cd34cbcb6660a59860d54d7a29b728dccc",
+      "sequence-2-wet.wav": "f64267da8abc5cbc6f9c4dce5b05367e6426a4769a6571f4d033309b15d57115",
+      "source-1-1-dry.wav": "6e1ba55e0e3ac42ff5e1434b753b5c7eb2df6fab08d071d5b262988aedce442f",
+      "source-1-1-wet.wav": "6212b2e9bc62ea9379acbb8992d54ac010ad62a39d37a46f52590cf745eab808",
+      "source-1-2-dry.wav": "df7dff29f27ab6ad29fefbb892f56c4d490d5242562c5b5a5d56b9077617ce16",
+      "source-1-2-wet.wav": "7639b199ba619157a2e67e4053d404efe90d1e98d0ee3ecbe09c7d234dfff61b",
+      "source-2-1-dry.wav": "6e1ba55e0e3ac42ff5e1434b753b5c7eb2df6fab08d071d5b262988aedce442f",
+      "source-2-1-wet.wav": "92aaf587c3f27d6fef8553206d4a5955213f231023ef426e64bae22e8d3b0b2b",
+      "source-2-2-dry.wav": "df7dff29f27ab6ad29fefbb892f56c4d490d5242562c5b5a5d56b9077617ce16",
+      "source-2-2-wet.wav": "2b72da66f6310d0f3743d58ca4c2129e13d47b1f8878ee6eca2369d3538c33e6"
+    }
+  },
+  "automated_tests": {
+    "full_suite_passed": 59,
+    "warnings": 9,
+    "note": "Sample-target generation then received a focused recheck after enforcing exact DSP targets for faded sequences."
+  },
+  "historical_sustained_failure": "reports/phases-4-6-evidence.json"
+}

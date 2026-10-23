@@ -1,0 +1,271 @@
+{
+  "scope": "Real CC0 DI inputs through a conventional DSP pedal; separate from neural-model research acceptance",
+  "passed": true,
+  "production_ready": false,
+  "source_page": "https://huggingface.co/datasets/Julian-br/GuitarJam",
+  "sample_manifest_sha256": "bacb9cc447544299006f76b7686f4bdb6c8e8d01a2bf261ca08913e663d15c6b",
+  "ui": {
+    "latency_samples": 128,
+    "stereo_consistent": true,
+    "reset_reproducible": true,
+    "editor_created": true,
+    "loop_parity": true,
+    "dry_latency_aligned": true,
+    "nonloop_parity": true,
+    "stop_restores_live_input": true,
+    "audition_checked": true
+  },
+  "processor": {
+    "latency_samples": 128,
+    "block_max_error": 9.42964106798172e-09,
+    "application_new_calls": 0,
+    "bypass_and_mix_zero_exact": true,
+    "silence_exact": true,
+    "stereo_consistent": true,
+    "p99_stereo_128_ms": 0.0196,
+    "allocation_scope": "Harness C++ operator new/new[]; excludes malloc, external DLL internals and device hosting"
+  },
+  "guitar_metrics": [
+    {
+      "source": "guitarjam-026",
+      "presets": {
+        "light": {
+          "peak": 0.13801570236682892,
+          "rms": 0.03743355986901545,
+          "gain_fitted_residual_ratio": 0.10265761051220601
+        },
+        "crunch": {
+          "peak": 0.3867064416408539,
+          "rms": 0.22337685486492578,
+          "gain_fitted_residual_ratio": 0.26574836708611443
+        },
+        "heavy": {
+          "peak": 0.3612954020500183,
+          "rms": 0.2136333604141749,
+          "gain_fitted_residual_ratio": 0.4816707588760831
+        }
+      }
+    },
+    {
+      "source": "guitarjam-050",
+      "presets": {
+        "light": {
+          "peak": 0.1693917065858841,
+          "rms": 0.03210219883161177,
+          "gain_fitted_residual_ratio": 0.1072164950925212
+        },
+        "crunch": {
+          "peak": 0.3989332616329193,
+          "rms": 0.17260794550776687,
+          "gain_fitted_residual_ratio": 0.3246104439879249
+        },
+        "heavy": {
+          "peak": 0.35154199600219727,
+          "rms": 0.164460930778577,
+          "gain_fitted_residual_ratio": 0.5480319483712361
+        }
+      }
+    },
+    {
+      "source": "guitarjam-085",
+      "presets": {
+        "light": {
+          "peak": 0.16752278804779053,
+          "rms": 0.03472597927447777,
+          "gain_fitted_residual_ratio": 0.10245649542014108
+        },
+        "crunch": {
+          "peak": 0.4443102777004242,
+          "rms": 0.17439576931348283,
+          "gain_fitted_residual_ratio": 0.35292590701390086
+        },
+        "heavy": {
+          "peak": 0.35476499795913696,
+          "rms": 0.17110404644909405,
+          "gain_fitted_residual_ratio": 0.5827507487422328
+        }
+      }
+    }
+  ],
+  "sine_1khz_thd_ratio": {
+    "light": 0.003859947101618512,
+    "heavy": 0.2701192237858646
+  },
+  "vst3_host_checks": [
+    {
+      "latency_samples": 128,
+      "samples": 480128,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "source": "guitarjam-026",
+      "host_block": 17,
+      "max_error": 0.0
+    },
+    {
+      "latency_samples": 128,
+      "samples": 480128,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "source": "guitarjam-026",
+      "host_block": 64,
+      "max_error": 0.0
+    },
+    {
+      "latency_samples": 128,
+      "samples": 480128,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "source": "guitarjam-026",
+      "host_block": 113,
+      "max_error": 0.0
+    },
+    {
+      "latency_samples": 128,
+      "samples": 480128,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "source": "guitarjam-026",
+      "host_block": 256,
+      "max_error": 0.0
+    },
+    {
+      "latency_samples": 128,
+      "samples": 480128,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "source": "guitarjam-026",
+      "host_block": 512,
+      "max_error": 0.0
+    },
+    {
+      "latency_samples": 128,
+      "samples": 480128,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "source": "guitarjam-050",
+      "host_block": 113,
+      "max_error": 7.450580596923828e-09
+    },
+    {
+      "latency_samples": 128,
+      "samples": 480128,
+      "stereo_consistent": true,
+      "reset_reproducible": true,
+      "editor_created": true,
+      "source": "guitarjam-085",
+      "host_block": 113,
+      "max_error": 3.841705620288849e-09
+    }
+  ],
+  "official_validator": {
+    "neural": {
+      "validator_sha256": "2d0777e630690dc1e5b441d15a72cb6a49f5a4dd7da0f80c3c1dd144c699899e",
+      "plugin": "C:\\Users\\david\\GitHub\\personal\\neural-audio-rd\\exports\\preview-v4\\VST3\\NeuralAudioFX.vst3",
+      "plugin_files_sha256": {
+        "Contents\\Resources\\moduleinfo.json": "897d4fab488ce11478b637204c5657335032d2ba46645d4dc6f0f41d37ad0151",
+        "Contents\\x86_64-win\\NeuralAudioFX.vst3": "3ec1538b977dd8a683dbaca9996cfc5515f14be03d30a8e4f30e484dc8b2bbd6",
+        "Contents\\x86_64-win\\neural_fx_ort_123.dll": "dec964ab1ee36cc9b0ae247d13b376627992fc57dec0454354017ab8fd84f1ea"
+      },
+      "cases": [
+        {
+          "case": "default",
+          "returncode": 0,
+          "tests_passed": 47,
+          "tests_failed": 0,
+          "passed": true,
+          "model_sha256": null
+        },
+        {
+          "case": "loaded_model",
+          "returncode": 0,
+          "tests_passed": 47,
+          "tests_failed": 0,
+          "passed": true,
+          "model_sha256": "11cc8b1f48dcdeed9df980f50fec941e2fff2780f191736a2ea226a6e8de7f31"
+        }
+      ],
+      "passed": true,
+      "production_ready": false,
+      "scope": "Official VST3 conformity tests; not a DAW host check, fidelity claim or allocation audit"
+    },
+    "pedal": {
+      "validator_sha256": "2d0777e630690dc1e5b441d15a72cb6a49f5a4dd7da0f80c3c1dd144c699899e",
+      "plugin": "C:\\Users\\david\\GitHub\\personal\\neural-audio-rd\\exports\\preview-v4\\VST3\\NeuralAudioFX.vst3",
+      "plugin_files_sha256": {
+        "Contents\\Resources\\moduleinfo.json": "897d4fab488ce11478b637204c5657335032d2ba46645d4dc6f0f41d37ad0151",
+        "Contents\\x86_64-win\\NeuralAudioFX.vst3": "3ec1538b977dd8a683dbaca9996cfc5515f14be03d30a8e4f30e484dc8b2bbd6",
+        "Contents\\x86_64-win\\neural_fx_ort_123.dll": "dec964ab1ee36cc9b0ae247d13b376627992fc57dec0454354017ab8fd84f1ea"
+      },
+      "cases": [
+        {
+          "case": "default",
+          "returncode": 0,
+          "tests_passed": 47,
+          "tests_failed": 0,
+          "passed": true,
+          "model_sha256": null
+        },
+        {
+          "case": "loaded_model",
+          "returncode": 0,
+          "tests_passed": 47,
+          "tests_failed": 0,
+          "passed": true,
+          "model_sha256": "11cc8b1f48dcdeed9df980f50fec941e2fff2780f191736a2ea226a6e8de7f31"
+        }
+      ],
+      "passed": true,
+      "production_ready": false,
+      "scope": "Official VST3 conformity tests; not a DAW host check, fidelity claim or allocation audit"
+    }
+  },
+  "limits": "Not a listening study, hardware-pedal match, target-DAW/device check, complete allocation audit or sustained scheduling acceptance.",
+  "recorded_date": "2026-10-22",
+  "automated_tests": {
+    "passed": 60,
+    "warnings": 9,
+    "seconds": 26.03
+  },
+  "preview_manifest_sha256": "9b0c86874fc0b59343730b547a6e72251717b22db2fe953b78ee3fc6403310a3",
+  "acquisition_specification": {
+    "dataset": "Julian-br/GuitarJam",
+    "source_page": "https://huggingface.co/datasets/Julian-br/GuitarJam",
+    "revision": "2d467bfec90af19301b01123494f4b2ba64c5a3a",
+    "license": "CC0-1.0",
+    "retrieved_date": "2026-10-22",
+    "dataset_card_sha256": "e6df26337b6307b41b58bdb0f5d9d7e185f5784028f5b2dcba13d2f21e7e78f8",
+    "files": [
+      {
+        "path": "guitar_jam/test/026.wav",
+        "url": "https://huggingface.co/datasets/Julian-br/GuitarJam/resolve/2d467bfec90af19301b01123494f4b2ba64c5a3a/guitar_jam/test/026.wav",
+        "sha256": "700dbfa9399c944ba60bb03d2e598a704d9d28892393665c9433558cb3fe26ab",
+        "local": "data\\raw\\guitarjam\\026.wav"
+      },
+      {
+        "path": "guitar_jam/test/050.wav",
+        "url": "https://huggingface.co/datasets/Julian-br/GuitarJam/resolve/2d467bfec90af19301b01123494f4b2ba64c5a3a/guitar_jam/test/050.wav",
+        "sha256": "22e7b845fc2d71200c72c13fedbeb5f8ac593e48a01f99875f857e0cc5dfecd0",
+        "local": "data\\raw\\guitarjam\\050.wav"
+      },
+      {
+        "path": "guitar_jam/test/085.wav",
+        "url": "https://huggingface.co/datasets/Julian-br/GuitarJam/resolve/2d467bfec90af19301b01123494f4b2ba64c5a3a/guitar_jam/test/085.wav",
+        "sha256": "75f4259fe5a117af647ca11916b1a656c9f2825f2d6fbe4a485fa10688ca62cd",
+        "local": "data\\raw\\guitarjam\\085.wav"
+      }
+    ]
+  },
+  "source_sha256": {
+    "deploy\\juce\\Pedal.h": "91254ee757f782be2d951b085186ab9e0fb0b4ba18c1e4688d2ae9f2034f28c7",
+    "deploy\\juce\\Plugin.cpp": "7e431e0842737e0cb67c4d69469167f7901d981ad09383af29bf4905003a8ab8",
+    "deploy\\juce\\Editor.h": "24bf01b095a07290c69410a6eaa08a178ba68ca12e89459ea674541fa2417dd5",
+    "tools\\validate_guitar_preview.py": "c2e3120dfc371edcf0636c0138716e144b1b673b62190ff1cdcbbb652fe0dd42",
+    "src\\neural_fx\\guitar_samples.py": "6cc847e4e49c9b306995bdfc22d9286588020f3e2587fb776d607fe1977831dc"
+  }
+}

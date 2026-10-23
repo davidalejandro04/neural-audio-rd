@@ -18,16 +18,26 @@ from .study import analyze_study, plan_study, review_run
 from .utils import read_json, write_json
 from .native import native_build, native_validate, validator_build, validate_plugin, native_sustain, package_preview
 from .reference import train_reference, infer_reference, render_reference
+from .samples import preview_samples
+from .guitar_samples import guitar_samples
 
 
 def main():
     parser = argparse.ArgumentParser(description="Reproducible neural audio-effects experiments")
     commands = parser.add_subparsers(dest="command", required=True)
+    command = commands.add_parser("guitar-samples")
+    command.add_argument("--spec", type=Path, default=Path("configs/guitarjam_samples.json"))
+    command.add_argument("--output", required=True, type=Path)
+    command.add_argument("--cache", type=Path, default=Path("data/raw/guitarjam"))
+    command = commands.add_parser("preview-samples")
+    command.add_argument("--data", required=True, type=Path)
+    command.add_argument("--output", required=True, type=Path)
     command = commands.add_parser("package-preview")
     command.add_argument("--validation", required=True, type=Path)
     command.add_argument("--output", required=True, type=Path)
     command.add_argument("--build", type=Path, default=Path("build/native"))
     command.add_argument("--reference-preset", type=Path)
+    command.add_argument("--samples", type=Path, default=Path("samples/distortion"))
     command = commands.add_parser("validator-build")
     command.add_argument("--output", type=Path, default=Path("build/vst3-validator"))
     command.add_argument("--sdk", type=Path)
@@ -124,8 +134,12 @@ def main():
     command.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     try:
-        if args.command == "package-preview":
-            result = package_preview(args.validation, args.output, args.build, args.reference_preset)
+        if args.command == "guitar-samples":
+            result = guitar_samples(args.spec, args.output, args.cache)
+        elif args.command == "preview-samples":
+            result = preview_samples(args.data, args.output)
+        elif args.command == "package-preview":
+            result = package_preview(args.validation, args.output, args.build, args.reference_preset, args.samples)
         elif args.command == "validator-build":
             result = validator_build(args.output, args.sdk)
         elif args.command == "validate-plugin":

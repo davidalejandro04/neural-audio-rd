@@ -79,7 +79,7 @@ def native_build(output, sdk=None, plugin=False, juce=None):
         command += [f"-DJUCE_ROOT={juce}"]
     print("Configuring native build...", flush=True)
     _run(command, output / "configure.log")
-    targets = ["nafx-render"] + (["NeuralAudioFX_VST3", "NeuralAudioFX_Standalone", "nafx-plugin-check"] if plugin else [])
+    targets = ["nafx-render"] + (["NeuralAudioFX_VST3", "NeuralAudioFX_Standalone", "nafx-plugin-check", "nafx-ui-check"] if plugin else [])
     print("Building " + ", ".join(targets) + "...", flush=True)
     _run(["cmake", "--build", output, "--config", "Release", "--target", *targets, "--parallel", "4"], output / "compile.log")
     executable = output / "Release/nafx-render.exe" if os.name == "nt" else output / "nafx-render"
@@ -160,7 +160,7 @@ def native_sustain(model, executable, output, seconds=600):
     return report
 
 
-def package_preview(validation, output, build="build/native", reference_preset=None):
+def package_preview(validation, output, build="build/native", reference_preset=None, samples="samples/distortion"):
     """Assemble local development artifacts, without installing or publishing them."""
     validation, output, build = Path(validation), Path(output), Path(build)
     if output.exists() and any(output.iterdir()):
@@ -203,10 +203,22 @@ def package_preview(validation, output, build="build/native", reference_preset=N
     wavfile.write(output / "demo-input.wav", rate, dry)
     _run([output / "Renderer/nafx-render.exe", "render", "--model", output / "models/conditional_tcn-128.onnx",
           "--input", output / "demo-input.wav", "--output", output / "demo-rendered.wav", "--drive", "0.5", "--mix", "1"])
-    (output / "Launch-NeuralFX.cmd").write_text('@echo off\nsetlocal\nset "NEURAL_FX_MODEL=%~dp0models\\conditional_tcn-128.onnx"\n"%~dp0Standalone\\NeuralAudioFX.exe"\n', encoding="utf-8")
+    if samples and (Path(samples) / "manifest.json").exists():
+        library = read_json(Path(samples) / "manifest.json")
+        for name, digest in library["files_sha256"].items():
+            file = (Path(samples) / name).resolve()
+            if not file.is_relative_to(Path(samples).resolve()) or sha256(file) != digest:
+                raise ValueError("Sample pack checksum/path mismatch")
+        shutil.copytree(samples, output / "samples")
+    pedal_default = bool(samples and (Path(samples) / "manifest.json").exists() and any(c.get("engine") == 1 for c in library["clips"]))
+    (output / "Launch-NeuralFX.cmd").write_text('@echo off\nsetlocal\nset "NEURAL_FX_MODEL=%~dp0models\\conditional_tcn-128.onnx"\nset "NEURAL_FX_SAMPLES=%~dp0samples"\nset "NEURAL_FX_PEDAL=' + ('1' if pedal_default else '') + '"\n"%~dp0Standalone\\NeuralAudioFX.exe"\n', encoding="utf-8")
     (output / "README.txt").write_text(
-        "NeuralAudioFX local research preview\n\nRun Launch-NeuralFX.cmd to open the standalone app with the validated 128-sample TCN.\n"
+        "NeuralAudioFX local research preview\n\nRun Launch-NeuralFX.cmd to open the standalone app with selectable neural and pedal effects.\n"
         "Set audio-device/session rate to 48000 Hz. Drive and Mix are normalized 0..1.\n"
+        "Choose Pedal distortion (4x) for the conventional oversampled guitar effect, or Neural model for learned inference.\n"
+        "Crunch/Heavy configure the pedal. Pedal input and tone apply to that mode; Output trims either effect.\n"
+        "Select a dataset sample and press Play; Loop repeats it, Dry compare auditions the dry input. Open WAV accepts your own mono/stereo audio (up to 60 seconds).\n"
+        "Synthetic packs include DSP targets in samples/*-wet.wav. Guitar DI packs contain dry recordings with effect applied live. Input is replaced only while sample playback is active.\n"
         "Choose model loads another current export outside audio processing. Load reference preset applies inferred controls.\n"
         "The buffered plugin reports one model block of latency (128 samples for the default model).\n"
         "demo-input.wav and demo-rendered.wav are nine-second algorithmic test notes, not real guitar recordings.\n"
