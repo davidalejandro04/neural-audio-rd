@@ -240,7 +240,11 @@ def export_onnx(checkpoint, output, block_size=128):
                       external_data=False, verbose=False)
     graph = onnx.load(output)
     onnx.helper.set_model_props(graph, {"neural_fx_sample_rate": str(saved["config"]["data"]["sample_rate"]),
-                                       "neural_fx_block_size": str(block_size), "neural_fx_state_version": "1"})
+                                       "neural_fx_block_size": str(block_size), "neural_fx_state_version": "1",
+                                       "neural_fx_effect": saved["config"]["data"]["effect"],
+                                       "neural_fx_control_order": "drive,mix",
+                                       "neural_fx_mix_contract": "output_already_mixed",
+                                       "neural_fx_checkpoint_sha256": sha256(checkpoint)})
     onnx.checker.check_model(graph)
     onnx.save(graph, output)
     options = ort.SessionOptions()
@@ -279,7 +283,8 @@ def export_onnx(checkpoint, output, block_size=128):
               "checkpoint_sha256": sha256(checkpoint), "onnx_sha256": sha256(output),
               "block_size": block_size, "sample_rate": saved["config"]["data"]["sample_rate"],
               "inputs": {"audio": [1, 1, block_size], "controls": [1, 2], "history": [1, 1, model.history_samples]},
-              "control_order": ["drive", "mix"], "exporter": "torch.onnx dynamo=True",
+              "control_order": ["drive", "mix"], "effect": saved["config"]["data"]["effect"],
+              "mix_contract": "output_already_mixed", "exporter": "torch.onnx dynamo=True",
               "state_policy": "Carry next_history into next call; zero on stream reset"}
     if model.has_gru:
         report["inputs"]["hidden"] = list(hidden.shape)

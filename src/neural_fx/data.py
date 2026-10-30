@@ -77,6 +77,14 @@ def generate(config, root):
             dry *= (0.5 + 0.5 * np.sin(2 * np.pi * rng.uniform(1, 8) * t) ** 2)
             dry += rng.normal(0, 0.025, samples)
             dry *= rng.uniform(0.3, 1.0)
+            if settings.get("source_profile") == "guitar_plucks":
+                # Independent procedural performances; varied pick level and decay.
+                # Include quiet passages to constrain high-gain noise on silence.
+                period = rng.uniform(.035, .12)
+                age = np.mod(t, period)
+                dry *= np.exp(-age * rng.uniform(15, 45))
+                dry *= rng.choice([.08, .25, .6, 1.0, 1.5])
+                dry[:min(256, samples)] = 0
             dry = dry.astype(np.float32)
             controls = control_sets[split]
             for preset, values in enumerate(controls):
@@ -89,7 +97,7 @@ def generate(config, root):
                 entry = {
                     "pair_id": pair_id, "source_id": source, "split": split,
                     "regime": "seen_controls" if tuple(values) in known_controls else "held_out_controls",
-                    "effect_type": settings["effect"], "device_id": "synthetic_dsp_v1",
+                    "effect_type": settings["effect"], "device_id": "synthetic_high_gain_v1" if settings["effect"] == "high_gain" else "synthetic_dsp_v1",
                     "sample_rate": sample_rate, "channels": 1, "num_samples": samples,
                     "latency_samples": 0, "input_gain_db": 0.0,
                     "parameters": dict(zip(("drive", "mix"), values)),

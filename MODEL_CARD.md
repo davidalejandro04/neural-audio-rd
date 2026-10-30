@@ -1,5 +1,7 @@
 # Prototype model card
 
+**High-gain v5 extension:** a separate 5,329-parameter conditional TCN targets an original synthetic cascaded preamp, with a 126-sample context, drive-only wet conditioning and exact external mix law. An opt-in zero-preserving TCN path subtracts its learned zero-input baseline. This adds computation without adding parameters and preserves silence structurally; historical checkpoints are unchanged. The [tracked configuration](experiments/high-gain.json) uses 32 procedural plucked training sources, eight validation sources, 12 independent test sources, and 120 epochs. Cabinet, EQ, delay and reverb are separate native DSP. No real guitar or hardware captures train this checkpoint; Marshall/Guns N' Roses describes the intended musical direction, not measured fidelity. See [v5 evidence](reports/high-gain-evidence.json) and the [rig guide](docs/HIGH_GAIN.md). The earlier v1 high-gain trial is retained locally, including its measured silence offset; v5 packages the zero-preserving revision.
+
 **Purpose:** research infrastructure, synthetic system-identification experiments, and a local native/plugin preview. Production and perceptual acceptance remain incomplete.
 
 **Architectures:** shallow causal Conv1D; unconditioned causal TCN; static FiLM-conditioned causal TCN; GRU; hybrid TCN/GRU/learned four-FIR-basis mixer; hybrid without GRU or without FIR. All take mono audio and normalized `[drive, mix]`. Exact mix=0 bypass is structural. Experiments train one effect family at a time; no device/effect embedding is implemented.

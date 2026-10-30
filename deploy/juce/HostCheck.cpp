@@ -8,7 +8,7 @@
 
 int main(int argc, char** argv) {
     try {
-        if (argc != 5) throw std::runtime_error("Usage: nafx-plugin-check plugin.vst3 input.f32 output.f32 host_block");
+        if (argc != 5 && argc != 7) throw std::runtime_error("Usage: nafx-plugin-check plugin.vst3 input.f32 output.f32 host_block [drive mix]");
         juce::ScopedJuceInitialiser_GUI initialise;
         juce::AudioPluginFormatManager manager;
         auto* format = new juce::VST3PluginFormat(); manager.addFormat(format);
@@ -22,6 +22,14 @@ int main(int argc, char** argv) {
         plugin->prepareToPlay(48000, 512);
         std::unique_ptr<juce::AudioProcessorEditor> editor(plugin->createEditorIfNeeded());
         if (!editor) throw std::runtime_error("Plugin editor could not be created");
+        if (argc == 7) {
+            const float drive = std::stof(argv[5]), mix = std::stof(argv[6]);
+            if (!std::isfinite(drive) || !std::isfinite(mix) || drive < 0 || drive > 1 || mix < 0 || mix > 1) throw std::runtime_error("Invalid normalized controls");
+            for (auto* p : plugin->getParameters()) {
+                if (p->getName(100) == "Drive") p->setValueNotifyingHost(drive);
+                if (p->getName(100) == "Mix") p->setValueNotifyingHost(mix);
+            }
+        }
         juce::MemoryBlock saved; plugin->getStateInformation(saved);
         plugin->setStateInformation(saved.getData(), static_cast<int>(saved.getSize()));
         std::ifstream input(std::filesystem::u8path(argv[2]), std::ios::binary | std::ios::ate);

@@ -76,8 +76,44 @@ int main() {
             auditionChecked = true;
         }
         auto screenshot = juce::SystemStats::getEnvironmentVariable("NEURAL_FX_SCREENSHOT", "");
+        // Rejecting a new selection must not leave the previous neural model active.
+        if (juce::SystemStats::getEnvironmentVariable("NEURAL_FX_MODEL", "").isNotEmpty()) {
+            juce::MemoryBlock saved; plugin->getStateInformation(saved);
+            auto xml = juce::AudioProcessor::getXmlFromBinary(saved.getData(), static_cast<int>(saved.getSize()));
+            if (!xml) throw std::runtime_error("Missing model state XML");
+            auto tree = juce::ValueTree::fromXml(*xml);
+            tree.setProperty("modelPath", juce::File::getCurrentWorkingDirectory().getChildFile("missing-test-model.onnx").getFullPathName(), nullptr);
+            juce::MemoryBlock invalid;
+            juce::AudioProcessor::copyXmlToBinary(*tree.createXml(), invalid);
+            plugin->setStateInformation(invalid.getData(), static_cast<int>(invalid.getSize()));
+            for (auto* raw : plugin->getParameters()) if (auto* p = dynamic_cast<juce::RangedAudioParameter*>(raw))
+                if (p->paramID == "engine") p->setValueNotifyingHost(0);
+            plugin->reset();
+            const int latency = plugin->getLatencySamples();
+            int offset = 0;
+            for (int blockIndex = 0; blockIndex < 8; ++blockIndex) {
+                buffer.clear();
+                if (blockIndex == 0) for (int ch = 0; ch < 2; ++ch) buffer.setSample(ch, 0, .25f);
+                plugin->processBlock(buffer, midi);
+                for (int i = 0; i < buffer.getNumSamples(); ++i)
+                    if (std::abs(buffer.getSample(0, i) - (offset+i == latency ? .25f : 0.f)) > 1e-6f) throw std::runtime_error("Failed model selection still processes with previous model");
+                offset += buffer.getNumSamples();
+            }
+            plugin->setStateInformation(saved.getData(), static_cast<int>(saved.getSize())); plugin->reset();
+        }
         auto effects = juce::SystemStats::getEnvironmentVariable("NEURAL_FX_EFFECT_CHECK", "");
-        if (effects.isNotEmpty()) checkGuitarEffect(*plugin, juce::File(juce::SystemStats::getEnvironmentVariable("NEURAL_FX_SAMPLES", "")), juce::File(effects));
+        if (effects.isNotEmpty()) {
+            checkGuitarEffect(*plugin, juce::File(juce::SystemStats::getEnvironmentVariable("NEURAL_FX_SAMPLES", "")), juce::File(effects));
+            checkRig(*plugin, juce::File(effects));
+        }
+        auto preset = juce::SystemStats::getEnvironmentVariable("NEURAL_FX_SCREENSHOT_PRESET", "presetLead");
+        if (screenshot.isNotEmpty()) {
+            auto* button = dynamic_cast<juce::TextButton*>(editor->findChildWithID(preset));
+            auto* play = dynamic_cast<juce::TextButton*>(editor->findChildWithID("primary"));
+            if (!button || !play) throw std::runtime_error("Screenshot preset unavailable");
+            button->onClick(); plugin->reset(); play->onClick();
+            for (int i = 0; i < 500; ++i) { buffer.clear(); plugin->processBlock(buffer, midi); }
+        }
         juce::Timer::callPendingTimersSynchronously();
         if (screenshot.isNotEmpty()) {
             auto image = editor->createComponentSnapshot(editor->getLocalBounds(), true, 1.f);

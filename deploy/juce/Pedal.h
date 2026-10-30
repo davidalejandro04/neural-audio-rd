@@ -18,12 +18,13 @@ public:
     void reset() noexcept {
         for (auto& c : channels) {
             c.oversampling.reset(); c.dry.fill(0); c.wet.fill(0); c.cursor = 0;
-            c.dcInput = c.dcOutput = c.tone1 = c.tone2 = 0; c.initial = true;
+            c.dcInput = c.dcOutput = c.tone1 = c.tone2 = c.preLow = 0; c.initial = true;
         }
     }
     void process(juce::AudioBuffer<float>& buffer, float drive, float mix, float inputDb,
-                 float outputDb, float toneHz, int latency) noexcept {
+                 float outputDb, float toneHz, int latency, bool british = false) noexcept {
         const float dc = static_cast<float>(std::exp(-2 * juce::MathConstants<double>::pi * 25 / sampleRate));
+        const float pre = static_cast<float>(std::exp(-2 * juce::MathConstants<double>::pi * 450 / (sampleRate * 4)));
         const float tone = static_cast<float>(std::exp(-2 * juce::MathConstants<double>::pi * juce::jlimit(800., sampleRate * .45, static_cast<double>(toneHz)) / sampleRate));
         for (int ch = 0; ch < juce::jmin(2, buffer.getNumChannels()); ++ch) {
             auto& c = channels[static_cast<size_t>(ch)];
@@ -45,8 +46,16 @@ public:
                 juce::dsp::AudioBlock<float> block(pointers, 1, static_cast<size_t>(count));
                 auto up = c.oversampling.processSamplesUp(block);
                 auto* high = up.getChannelPointer(0);
-                for (size_t i = 0; i < up.getNumSamples(); ++i)
-                    high[i] = std::tanh(high[i] * c.drive.getNextValue() * c.input.getNextValue());
+                for (size_t i = 0; i < up.getNumSamples(); ++i) {
+                    float x = high[i] * c.input.getNextValue();
+                    // Tight bass into cascaded asymmetric stages; synthetic amp voicing.
+                    c.preLow = (1 - pre) * x + pre * c.preLow;
+                    const float g = c.drive.getNextValue();
+                    if (british) {
+                        x = std::tanh((x - .65f * c.preLow) * g + .12f) - std::tanh(.12f);
+                        high[i] = .65f * std::tanh((1.5f + 2.5f * drive) * x);
+                    } else high[i] = std::tanh(x * g);
+                }
                 c.oversampling.processSamplesDown(block);
                 for (int i = 0; i < count; ++i) {
                     const float cleaned = audio[i] - c.dcInput + dc * c.dcOutput;
@@ -69,7 +78,7 @@ private:
         juce::SmoothedValue<float> drive, input, mix, output;
         std::array<float, 16384> dry{}, wet{};
         std::array<float, 512> source{};
-        size_t cursor{}; float dcInput{}, dcOutput{}, tone1{}, tone2{}; bool initial{true};
+        size_t cursor{}; float dcInput{}, dcOutput{}, tone1{}, tone2{}, preLow{}; bool initial{true};
     };
     std::array<Channel, 2> channels;
     double sampleRate{48000};

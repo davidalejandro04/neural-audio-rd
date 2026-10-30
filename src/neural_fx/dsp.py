@@ -1,7 +1,25 @@
 """Known targets; these are controls, not learned contributions."""
 import numpy as np
 import torch
-from scipy.signal import fftconvolve
+from scipy.signal import fftconvolve, firwin, lfilter
+
+
+def high_gain(x, drive, mix, sample_rate):
+    """Causal synthetic British-inspired preamp; no hardware/cabinet capture.
+
+    Tighten bass before two asymmetric gain stages and roll off ultrasonic fizz.
+    FIR memory fits the development TCN's receptive field. Cabinet/space remain
+    independent native effects, so they are never learned/applied twice.
+    """
+    if mix == 0:
+        return np.asarray(x, dtype=np.float32).copy()
+    low = lfilter(firwin(17, 700, fs=sample_rate), [1.0], x)
+    tight = x - 0.65 * low
+    gain = 10 ** ((6 + 30 * drive) / 20)
+    stage = np.tanh(gain * tight + 0.12) - np.tanh(0.12)
+    wet = 0.65 * np.tanh((1.5 + 2.5 * drive) * stage)
+    wet = lfilter(firwin(33, min(7000, sample_rate * .4), fs=sample_rate), [1.0], wet)
+    return ((1 - mix) * x + mix * wet).astype(np.float32)
 
 
 def distortion(x, drive, mix):
@@ -23,6 +41,8 @@ def target(x, controls, effect, sample_rate):
     drive, mix = controls
     if effect == "distortion":
         return distortion(x, drive, mix)
+    if effect == "high_gain":
+        return high_gain(x, drive, mix, sample_rate)
     if effect not in ("cabinet", "reverb"):
         raise ValueError(f"Unknown target effect: {effect}")
     ir = impulse_response(sample_rate, effect)

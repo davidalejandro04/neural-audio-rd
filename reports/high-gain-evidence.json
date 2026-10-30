@@ -1,0 +1,618 @@
+{
+  "scope": "Synthetic high-gain model plus independent native guitar rack; no hardware/artist fidelity claim",
+  "checkpoint_sha256": "cc60fff746ad38a957214af35af263035a47d46a2a5dfc86e8e8177ff2e19aeb",
+  "onnx_sha256": "df09a18bffa8a58475e79c055b2ea2b39b9ae25c344a7bef2f9464df9bc7bf53",
+  "configuration": {
+    "experiment": "synthetic_british_high_gain_v2_zero_preserving",
+    "seed": 7319,
+    "data_seed": 62044,
+    "data": {
+      "effect": "high_gain",
+      "source_profile": "guitar_plucks",
+      "sample_rate": 48000,
+      "samples": 8192,
+      "sources": {
+        "train": 32,
+        "valid": 8,
+        "test": 12
+      },
+      "controls": {
+        "train": [
+          [
+            0,
+            1
+          ],
+          [
+            0.2,
+            1
+          ],
+          [
+            0.4,
+            1
+          ],
+          [
+            0.6,
+            1
+          ],
+          [
+            0.8,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            0.2,
+            0.5
+          ],
+          [
+            0.6,
+            0.5
+          ],
+          [
+            1,
+            0.5
+          ]
+        ],
+        "valid": [
+          [
+            0.1,
+            1
+          ],
+          [
+            0.5,
+            1
+          ],
+          [
+            0.9,
+            1
+          ],
+          [
+            0.7,
+            0.65
+          ]
+        ],
+        "test": [
+          [
+            0.3,
+            1
+          ],
+          [
+            0.7,
+            1
+          ],
+          [
+            0.95,
+            1
+          ],
+          [
+            0.8,
+            0.6
+          ],
+          [
+            0.5,
+            0
+          ]
+        ]
+      }
+    },
+    "model": {
+      "name": "conditional_tcn",
+      "channels": 16,
+      "dilations": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "fir_taps": 129,
+      "wet_only_conditioning": true,
+      "zero_preserving": true
+    },
+    "suite": [
+      "conditional_tcn"
+    ],
+    "training": {
+      "epochs": 120,
+      "segment_samples": 1024,
+      "batch_size": 16,
+      "learning_rate": 0.001,
+      "spectral_weight": 0.02
+    },
+    "evaluation": {
+      "block_sizes": [
+        64,
+        128,
+        256,
+        512
+      ],
+      "audio_examples": 6
+    },
+    "gates": {
+      "max_esr": 0.1,
+      "identity_esr_ratio": 0.8,
+      "stream_max_error": 1e-05,
+      "export_max_error": 1e-05,
+      "p99_budget_fraction": 0.7
+    },
+    "scope": "Single-seed synthetic cascaded preamp study; not a Marshall or artist capture. Cabinet, delay and reverb are separate DSP. No real recordings in training."
+  },
+  "evaluation": {
+    "checkpoint_sha256": "cc60fff746ad38a957214af35af263035a47d46a2a5dfc86e8e8177ff2e19aeb",
+    "config_sha256": "275d9dbf4f2c32be34477b55a37108f588b7d4ff33af6a9e0d3dba0ee26af0b3",
+    "manifest_sha256": {
+      "train": "99a30a60835e11547bf711d1da673094e4f4d06ab6a0c9d532442ae0030f0506",
+      "valid": "e0e99400300e4a23cdcffa5e3dd382f7d5a306b22a64110274f247692b4b287e",
+      "test": "350c8141bee2dcc025f031515070bbbc94669fa11d3eaa06b4c55d6f362ac0dd"
+    },
+    "independent_test_sources": 12,
+    "max_stream_error": 5.185604095458984e-06,
+    "parameters": 5329,
+    "history_samples": 126,
+    "summary": {
+      "analytic_oracle": {
+        "active_source_median": {
+          "mse": 0.0,
+          "l1": 0.0,
+          "esr": 0.0,
+          "mrstft": 0.0,
+          "lsd_db": 0.0
+        },
+        "by_regime_pair_median": {
+          "held_out_controls": {
+            "mse": 0.0,
+            "l1": 0.0,
+            "esr": 0.0,
+            "mrstft": 0.0,
+            "lsd_db": 0.0
+          }
+        }
+      },
+      "identity": {
+        "active_source_median": {
+          "mse": 0.05478225524711888,
+          "l1": 0.1573733405675739,
+          "esr": 0.9481176462849981,
+          "mrstft": 3.7551107704639435,
+          "lsd_db": 27.652156352996826
+        },
+        "by_regime_pair_median": {
+          "held_out_controls": {
+            "mse": 0.03262726776301861,
+            "l1": 0.13266802579164505,
+            "esr": 0.9625656347750796,
+            "mrstft": 4.063443422317505,
+            "lsd_db": 29.056132316589355
+          }
+        }
+      },
+      "model": {
+        "active_source_median": {
+          "mse": 0.0013263272094832246,
+          "l1": 0.02103102630644571,
+          "esr": 0.016303618376299074,
+          "mrstft": 0.6571483090519905,
+          "lsd_db": 7.117861598730087
+        },
+        "by_regime_pair_median": {
+          "held_out_controls": {
+            "mse": 0.00032521592220291495,
+            "l1": 0.013175926636904478,
+            "esr": 0.01332960483626501,
+            "mrstft": 0.6688911318778992,
+            "lsd_db": 7.592273473739624
+          }
+        }
+      }
+    },
+    "scope": "synthetic engineering check"
+  },
+  "engineering_gates": {
+    "passed": false,
+    "checks": {
+      "quality_esr": {
+        "passed": true,
+        "observed": 0.016303618376299074,
+        "maximum": 0.1
+      },
+      "beats_identity": {
+        "passed": true,
+        "observed": 0.01719577569321847,
+        "maximum": 0.8
+      },
+      "streaming": {
+        "passed": true,
+        "observed": 5.185604095458984e-06,
+        "maximum": 1e-05
+      },
+      "runtime_screening": {
+        "passed": false,
+        "observed": 1.70419875,
+        "maximum": 0.7
+      },
+      "onnx_parity": {
+        "passed": true,
+        "observed": 8.940696716308594e-07,
+        "maximum": 1e-05
+      }
+    },
+    "production_ready": false,
+    "remaining_release_requirements": [
+      "real capture evaluation",
+      "reference transfer study",
+      "native runtime parity",
+      "listening study",
+      "VST3 validator and host tests"
+    ]
+  },
+  "native": {
+    "parity_passed": true,
+    "native_screening_passed": true,
+    "blocks": [
+      {
+        "block_size": 128,
+        "export": {
+          "passed": true,
+          "max_error": 8.940696716308594e-07,
+          "tolerance": 1e-05,
+          "checkpoint_sha256": "cc60fff746ad38a957214af35af263035a47d46a2a5dfc86e8e8177ff2e19aeb",
+          "onnx_sha256": "df09a18bffa8a58475e79c055b2ea2b39b9ae25c344a7bef2f9464df9bc7bf53",
+          "block_size": 128,
+          "sample_rate": 48000,
+          "inputs": {
+            "audio": [
+              1,
+              1,
+              128
+            ],
+            "controls": [
+              1,
+              2
+            ],
+            "history": [
+              1,
+              1,
+              126
+            ]
+          },
+          "control_order": [
+            "drive",
+            "mix"
+          ],
+          "effect": "high_gain",
+          "mix_contract": "output_already_mixed",
+          "exporter": "torch.onnx dynamo=True",
+          "state_policy": "Carry next_history into next call; zero on stream reset"
+        },
+        "trace_max_error": 4.76837158203125e-07,
+        "reset_max_error": 0.0,
+        "wav_max_error": 8.940696716308594e-07,
+        "buffered_host_errors": {
+          "17": 8.940696716308594e-07,
+          "64": 8.940696716308594e-07,
+          "113": 8.940696716308594e-07,
+          "256": 8.940696716308594e-07,
+          "512": 8.940696716308594e-07
+        },
+        "latency_samples": 128,
+        "benchmark": {
+          "runtime": "native ONNX Runtime CPU",
+          "onnxruntime": "1.23.2",
+          "sample_rate": 48000,
+          "block_size": 128,
+          "iterations": 2000,
+          "paced": false,
+          "wall_seconds": 0.3265386,
+          "simulated_audio_seconds": 5.33333333333,
+          "mean_ms": 0.1631601,
+          "p95_ms": 0.1689,
+          "p99_ms": 0.187407,
+          "worst_ms": 0.2592,
+          "deadline_ms": 2.66666666667,
+          "p99_budget_fraction": 0.070277625,
+          "processing_deadline_misses": 0,
+          "scheduling_deadline_misses": 0,
+          "application_new_calls": 0,
+          "allocation_scope": "executable operator new/new[] including aligned allocations; excludes ONNX Runtime DLL internals and malloc",
+          "screening_passed": true,
+          "sustained_scheduling_passed": false,
+          "production_ready": false
+        },
+        "parity_passed": true
+      }
+    ],
+    "host_plugin_checks": [
+      {
+        "host_block": 17,
+        "drive": 0.5,
+        "mix": 1.0,
+        "max_error": 8.940696716308594e-07,
+        "passed": true
+      },
+      {
+        "host_block": 64,
+        "drive": 0.5,
+        "mix": 1.0,
+        "max_error": 8.940696716308594e-07,
+        "passed": true
+      },
+      {
+        "host_block": 113,
+        "drive": 0.5,
+        "mix": 1.0,
+        "max_error": 8.940696716308594e-07,
+        "passed": true
+      },
+      {
+        "host_block": 256,
+        "drive": 0.5,
+        "mix": 1.0,
+        "max_error": 8.940696716308594e-07,
+        "passed": true
+      },
+      {
+        "host_block": 512,
+        "drive": 0.5,
+        "mix": 1.0,
+        "max_error": 8.940696716308594e-07,
+        "passed": true
+      },
+      {
+        "host_block": 17,
+        "drive": 0.85,
+        "mix": 0.35,
+        "max_error": 3.334134817123413e-07,
+        "passed": true
+      },
+      {
+        "host_block": 64,
+        "drive": 0.85,
+        "mix": 0.35,
+        "max_error": 3.334134817123413e-07,
+        "passed": true
+      },
+      {
+        "host_block": 113,
+        "drive": 0.85,
+        "mix": 0.35,
+        "max_error": 3.334134817123413e-07,
+        "passed": true
+      },
+      {
+        "host_block": 256,
+        "drive": 0.85,
+        "mix": 0.35,
+        "max_error": 3.334134817123413e-07,
+        "passed": true
+      },
+      {
+        "host_block": 512,
+        "drive": 0.85,
+        "mix": 0.35,
+        "max_error": 3.334134817123413e-07,
+        "passed": true
+      },
+      {
+        "host_block": 17,
+        "drive": 0.85,
+        "mix": 0.0,
+        "max_error": 0.0,
+        "passed": true
+      },
+      {
+        "host_block": 64,
+        "drive": 0.85,
+        "mix": 0.0,
+        "max_error": 0.0,
+        "passed": true
+      },
+      {
+        "host_block": 113,
+        "drive": 0.85,
+        "mix": 0.0,
+        "max_error": 0.0,
+        "passed": true
+      },
+      {
+        "host_block": 256,
+        "drive": 0.85,
+        "mix": 0.0,
+        "max_error": 0.0,
+        "passed": true
+      },
+      {
+        "host_block": 512,
+        "drive": 0.85,
+        "mix": 0.0,
+        "max_error": 0.0,
+        "passed": true
+      }
+    ]
+  },
+  "pedal_and_guitar_callback": {
+    "latency_samples": 128,
+    "block_max_error": 9.440555004402995e-09,
+    "application_new_calls": 0,
+    "bypass_and_mix_zero_exact": true,
+    "silence_exact": true,
+    "stereo_consistent": true,
+    "p99_stereo_128_ms": 0.4625,
+    "allocation_scope": "Harness C++ operator new/new[]; excludes malloc, external DLL internals and device hosting"
+  },
+  "rack": {
+    "block_and_state_max_error": 3.047287464141846e-06,
+    "application_new_calls": 0,
+    "tail_energy": 21.782183094228767,
+    "cabinet_changes_signal": true,
+    "bypass_mix_zero_exact": true,
+    "mono_44100_96000_finite": true,
+    "scope": "DSP rig; neural parity is tested separately by native-validate"
+  },
+  "trained_onnx_silence_max": 0.0,
+  "guitar": [
+    {
+      "source": "guitarjam-026",
+      "rack_renders": {
+        "british-lead": {
+          "peak": 0.6472195982933044,
+          "rms": 0.23794348537921906,
+          "wav_sha256": "5fb1e7cbfb8d57e781dd6e7be32261debe65ebf00bd3846c68cb44a414cc54ed"
+        },
+        "neural-lead": {
+          "peak": 0.6182522177696228,
+          "rms": 0.20974984765052795,
+          "wav_sha256": "0f11157d617642c7d7afd4a08e292be4d5ecfbd4d918d0363f909b9092eb1440"
+        }
+      },
+      "synthetic_target_transfer": [
+        {
+          "drive": 0.3,
+          "samples": 48000,
+          "esr": 0.0024807199370115995
+        },
+        {
+          "drive": 0.85,
+          "samples": 48000,
+          "esr": 0.03276698291301727
+        }
+      ]
+    },
+    {
+      "source": "guitarjam-050",
+      "rack_renders": {
+        "british-lead": {
+          "peak": 0.6053195595741272,
+          "rms": 0.18810774385929108,
+          "wav_sha256": "3b0142cc53a67ad129ed5b55e69e6166e9b931c884e155bd8731bb750b157b2e"
+        },
+        "neural-lead": {
+          "peak": 0.5410012006759644,
+          "rms": 0.16379651427268982,
+          "wav_sha256": "e3de7a3e53d39b18c2c52f8ca7625009340052c8343afa9b102116fbcc545b86"
+        }
+      },
+      "synthetic_target_transfer": [
+        {
+          "drive": 0.3,
+          "samples": 48000,
+          "esr": 0.0005178832798264921
+        },
+        {
+          "drive": 0.85,
+          "samples": 48000,
+          "esr": 0.016292769461870193
+        }
+      ]
+    },
+    {
+      "source": "guitarjam-085",
+      "rack_renders": {
+        "british-lead": {
+          "peak": 0.6529207229614258,
+          "rms": 0.17757348716259003,
+          "wav_sha256": "77b4a1781033dd49d376b3821ca7fbc452b3fab0ce6389db8a74ec2146c3304f"
+        },
+        "neural-lead": {
+          "peak": 0.6217545866966248,
+          "rms": 0.14881597459316254,
+          "wav_sha256": "4002cb69555b3676898939315a94e155d5086b67c02707688154d38e800b628e"
+        }
+      },
+      "synthetic_target_transfer": [
+        {
+          "drive": 0.3,
+          "samples": 48000,
+          "esr": 0.008797410875558853
+        },
+        {
+          "drive": 0.85,
+          "samples": 48000,
+          "esr": 0.05123177915811539
+        }
+      ]
+    }
+  ],
+  "packaged_host": [
+    {
+      "drive": 0.5,
+      "mix": 1.0,
+      "max_error": 0.0
+    },
+    {
+      "drive": 0.85,
+      "mix": 0.35,
+      "max_error": 0.0
+    },
+    {
+      "drive": 0.85,
+      "mix": 0.0,
+      "max_error": 0.0
+    }
+  ],
+  "package_manifest_sha256": "7c55e74ea03ee4112465a0c87e1cd419115da5cc6ea4f8b545b0b31ee1c35dba",
+  "official_validator": {
+    "validator_sha256": "2d0777e630690dc1e5b441d15a72cb6a49f5a4dd7da0f80c3c1dd144c699899e",
+    "plugin": "C:\\Users\\david\\GitHub\\personal\\neural-audio-rd\\build\\native\\plugin\\NeuralAudioFX_artefacts\\Release\\VST3\\NeuralAudioFX.vst3",
+    "plugin_files_sha256": {
+      "Contents\\Resources\\moduleinfo.json": "897d4fab488ce11478b637204c5657335032d2ba46645d4dc6f0f41d37ad0151",
+      "Contents\\x86_64-win\\NeuralAudioFX.vst3": "9e315c669849157e7a80d38447ba0a4f971f120cf8ce88568e010d1fcfa0878b",
+      "Contents\\x86_64-win\\neural_fx_ort_123.dll": "dec964ab1ee36cc9b0ae247d13b376627992fc57dec0454354017ab8fd84f1ea",
+      "Contents\\x86_64-win\\onnxruntime.dll": "dec964ab1ee36cc9b0ae247d13b376627992fc57dec0454354017ab8fd84f1ea"
+    },
+    "cases": [
+      {
+        "case": "default",
+        "returncode": 0,
+        "tests_passed": 47,
+        "tests_failed": 0,
+        "passed": true,
+        "model_sha256": null
+      },
+      {
+        "case": "loaded_model",
+        "returncode": 0,
+        "tests_passed": 47,
+        "tests_failed": 0,
+        "passed": true,
+        "model_sha256": "df09a18bffa8a58475e79c055b2ea2b39b9ae25c344a7bef2f9464df9bc7bf53"
+      }
+    ],
+    "passed": true,
+    "production_ready": false,
+    "scope": "Official VST3 conformity tests; not a DAW host check, fidelity claim or allocation audit"
+  },
+  "screenshots": {
+    "docs\\assets\\hard-rock-rig.png": "9588b84a6915aa9a5a48d889df2be98c07181497a2de22481dc80405b6002d02",
+    "docs\\assets\\high-gain-neural.png": "2b5ee384b11ca0afaf3d315b1a005ff4f88dc13147e2b3de539bc863c0aa2001"
+  },
+  "production_ready": false,
+  "limitations": [
+    "Python runtime gate failed and is retained",
+    "Native timing is an unpaced screen, not sustained device acceptance",
+    "Guitar transfer compares with synthetic DSP, not real amp captures",
+    "No human listening or target DAW/device acceptance",
+    "Cabinets are algorithmic filters; no measured IRs",
+    "No complete aliasing or external-runtime allocation audit"
+  ],
+  "recorded_at_utc": "2026-10-29T14:00:31.722092+00:00",
+  "local_tests": {
+    "passed": 63,
+    "command": "python -m pytest -q --basetemp runs/pytest-rig-complete-20261029"
+  },
+  "initial_high_gain_trial": {
+    "run": "runs/high-gain-v1",
+    "epochs": 80,
+    "zero_preserving": false,
+    "test_esr": 0.07111611035604011,
+    "measured_zero_input_offsets_at_drive_0_03_07_1": [
+      -0.0023085291031748056,
+      -0.005812065675854683,
+      0.000656740739941597,
+      -0.0019863471388816833
+    ],
+    "comparison_scope": "Development iteration; epochs and architecture changed together, not a controlled ablation"
+  }
+}

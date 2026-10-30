@@ -24,7 +24,7 @@ class CausalBlock(nn.Module):
 
 
 class AudioModel(nn.Module):
-    def __init__(self, name="conditional_tcn", channels=8, dilations=(1, 2, 4), fir_taps=33, wet_only_conditioning=False):
+    def __init__(self, name="conditional_tcn", channels=8, dilations=(1, 2, 4), fir_taps=33, wet_only_conditioning=False, zero_preserving=False):
         super().__init__()
         supported = ("conv1d", "tcn", "conditional_tcn", "gru", "hybrid", "hybrid_no_gru", "hybrid_no_fir")
         if name not in supported:
@@ -33,6 +33,9 @@ class AudioModel(nn.Module):
             raise ValueError("Positive channels, FIR taps, and dilations required")
         self.name, self.channels = name, channels
         self.wet_only_conditioning = wet_only_conditioning
+        if zero_preserving and name not in ("conv1d", "tcn", "conditional_tcn"):
+            raise ValueError("Zero-preserving inference currently supports finite-context TCNs only")
+        self.zero_preserving = zero_preserving
         self.has_tcn = name != "gru"
         self.has_gru = name in ("gru", "hybrid", "hybrid_no_fir")
         self.has_fir = name in ("hybrid", "hybrid_no_gru")
@@ -67,10 +70,18 @@ class AudioModel(nn.Module):
         conditioned_controls = torch.cat((controls[:, :1], torch.ones_like(controls[:, 1:2])), dim=1) if self.wet_only_conditioning else controls
         outputs = []
         if self.has_tcn:
-            z = self.input(joined)
-            for block in self.blocks:
-                z = block(z, conditioned_controls)
-            outputs.append(self.output(z)[..., self.history_samples:])
+            def tcn(audio):
+                z = self.input(audio)
+                for block in self.blocks:
+                    z = block(z, conditioned_controls)
+                return self.output(z)[..., self.history_samples:]
+            z = tcn(joined)
+            if self.zero_preserving:
+                # Remove the learned control-dependent DC baseline. Silence with
+                # zero history is exactly zero, including after drive changes.
+                # This is opt-in so historical checkpoints retain their behavior.
+                z = z - tcn(torch.zeros_like(joined))
+            outputs.append(z)
         if self.has_gru:
             repeated = conditioned_controls.unsqueeze(1).expand(-1, x.shape[-1], -1)
             z, hidden = self.gru(torch.cat((x.transpose(1, 2), repeated), dim=-1), hidden)

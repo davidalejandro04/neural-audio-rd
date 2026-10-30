@@ -14,6 +14,7 @@ public:
     Processor& operator=(const Processor&) = delete;
     size_t blockSize() const noexcept { return block_; }
     int sampleRate() const noexcept { return rate_; }
+    const std::string& effect() const noexcept { return effect_; }
     void reset() noexcept;
     bool process(const float* input, float* output, float drive, float mix) noexcept;
     const std::vector<float>& history() const noexcept;
@@ -35,6 +36,7 @@ private:
     bool hasHidden_{false};
     int rate_{0};
     std::string error_;
+    std::string effect_{"Legacy model (effect unspecified)"};
 };
 
 // Adapts arbitrary host callback lengths to the fixed ONNX block, adding exactly B samples latency.
@@ -45,6 +47,7 @@ public:
     bool process(float* audio, size_t samples, float drive, float mix) noexcept;
     size_t latency() const noexcept { return engine_.blockSize(); }
     int sampleRate() const noexcept { return engine_.sampleRate(); }
+    const std::string& effect() const noexcept { return engine_.effect(); }
 private:
     Processor engine_;
     std::vector<float> input_, output_;

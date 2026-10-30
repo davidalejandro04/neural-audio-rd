@@ -1,6 +1,16 @@
 # Neural Audio R&D
 
-A runnable, phased research pipeline for controllable neural audio effects, based on [the HTML research report](deep-research-report.html) and [the Markdown report](deep-research-report.md).
+A native guitar rig and a reproducible neural-audio research pipeline. The **v5 hard-rock preview** adds a British high-gain amp, three 4x12 cabinet voicings, three-band EQ, delay, room reverb, and five gain/lead presets. A separately trained high-gain TCN is available alongside the oversampled DSP engines.
+
+![Native guitar rig: Sunset lead with British 4x12, delay and reverb](docs/assets/hard-rock-rig.png)
+
+**Play locally:** run `exports\preview-v5\Launch-NeuralFX.cmd`, select **48 kHz**, and press **Play sample**. Try **Hard rock** for rhythm, **Sunset lead** for sustain and ambience, or **Neural lead** for the loaded high-gain model. **Dry compare** bypasses the complete rig with latency alignment. Selecting a different guitar clip preserves your sound.
+
+![Trained high-gain neural preamp with independent cabinet and ambience](docs/assets/high-gain-neural.png)
+
+These are screenshots of the running native editor, including live sample playback and meters. The musical direction is Marshall / Guns N' Roses inspired; the preamps and cabinets are **synthetic voicings, not hardware or artist captures**. The neural model learns the preamp only; cabinet, delay and reverb remain separate DSP. Input boost and DSP tone are disabled in neural mode to preserve the trained input contract. See the [rig controls, model contract and build instructions](docs/HIGH_GAIN.md), [tracked training configuration](experiments/high-gain.json), and [verification evidence](reports/high-gain-evidence.json). Local weights and preview binaries remain in ignored `runs/` and `exports/`; the configuration reproduces training.
+
+The phased research pipeline is based on [the HTML research report](deep-research-report.html) and [the Markdown report](deep-research-report.md).
 
 Open the [HTML documentation guide](docs/index.html) for [theoretical foundations and mathematical specifications](docs/THEORY_AND_MATHEMATICS.html), [metric formulas and statistical interpretation](docs/METRICS.html), and [experiments, flowcharts, and expected results](docs/EXPERIMENTS.html). Equations and flowcharts are embedded as SVG for offline viewing. These distinguish implemented behavior, measured evidence, acceptance targets, and proposed research.
 
@@ -8,7 +18,7 @@ Learn the foundations through the [HTML course](docs/course/index.html): twelve 
 
 The [research production plan](docs/RESEARCH_PIPELINE.html) defines seven phases, measurable acceptance criteria, current implementation status and the remaining work. The repository supports synthetic distortion/cabinet/reverb pairs, data audits, causal Conv1D/TCN/GRU baselines, FiLM conditioning, hybrid ablations, held-out evaluation, streaming checks and export. The extension provides paired-reference control inference and native standalone/VST3 development builds; full reference-transfer and release acceptance remain open.
 
-The [electric-guitar distortion guide](docs/GUITAR_DISTORTION.html) covers the latest Windows preview in `exports/preview-v4/`: run `exports\preview-v4\Launch-NeuralFX.cmd`, select **48 kHz**, choose a guitar clip and press **Play sample**. It includes three publisher-declared CC0 GuitarJam DI recordings and a separately labelled 4x oversampled **Pedal distortion** effect, with Crunch/Heavy presets, input gain, tone and output trim. The learned neural model remains selectable. Dry audio is processed live; distortion is not baked into the supplied input recordings.
+The [earlier electric-guitar distortion guide](docs/GUITAR_DISTORTION.html) documents v4 and its original measurements. Both previews include three publisher-declared CC0 GuitarJam DI recordings. Dry audio is processed live; effects are not baked into the supplied input recordings.
 
 The [native preview and reference-transfer guide](docs/NATIVE_AND_REFERENCE.html) documents the implemented P4 baseline, P5 C++ renderer/recurrent exports and P6 standalone/VST3 tooling. Native parity and official VST3 conformity have been tested; paired hardware-capture evaluation, human listening and target-DAW acceptance are still pending.
 

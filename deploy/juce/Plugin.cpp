@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include "Pedal.h"
+#include "Rack.h"
 
 class NeuralAudioFX final : public juce::AudioProcessor {
 public:
@@ -14,10 +15,17 @@ public:
         drive = parameters.getRawParameterValue("drive"); mix = parameters.getRawParameterValue("mix");
         engine = parameters.getRawParameterValue("engine"); inputDb = parameters.getRawParameterValue("inputDb");
         outputDb = parameters.getRawParameterValue("outputDb"); tone = parameters.getRawParameterValue("tone");
+        for (size_t i = 0; i < rackIds.size(); ++i) rackValues[i] = parameters.getRawParameterValue(rackIds[i]);
         modelPath = juce::SystemStats::getEnvironmentVariable("NEURAL_FX_MODEL", "");
         formats.registerBasicFormats();
         if (juce::SystemStats::getEnvironmentVariable("NEURAL_FX_PEDAL", "") == "1") {
             for (auto pair : {std::make_pair("engine", 1.f), std::make_pair("drive", .65f), std::make_pair("inputDb", 6.f), std::make_pair("outputDb", -9.f)})
+                parameters.getParameter(pair.first)->setValueNotifyingHost(parameters.getParameter(pair.first)->convertTo0to1(pair.second));
+        }
+        if (juce::SystemStats::getEnvironmentVariable("NEURAL_FX_RIG", "") == "1") {
+            for (auto pair : {std::make_pair("engine", 2.f), std::make_pair("drive", .72f), std::make_pair("inputDb", 6.f),
+                              std::make_pair("outputDb", -9.f), std::make_pair("tone", 6000.f), std::make_pair("cabinet", 1.f),
+                              std::make_pair("bass", -1.f), std::make_pair("middle", 3.f), std::make_pair("treble", 1.f), std::make_pair("reverbMix", .06f)})
                 parameters.getParameter(pair.first)->setValueNotifyingHost(parameters.getParameter(pair.first)->convertTo0to1(pair.second));
         }
     }
@@ -25,16 +33,23 @@ public:
         juce::AudioProcessorValueTreeState::ParameterLayout p;
         p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("drive", 1), "Drive", 0.f, 1.f, 0.5f));
         p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("mix", 1), "Mix", 0.f, 1.f, 1.f));
-        p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("engine", 1), "Effect engine", juce::StringArray{"Neural model", "Pedal distortion (4x)"}, 0));
+        p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("engine", 1), "Effect engine", juce::StringArray{"Neural model", "Pedal distortion (4x)", "British amp (4x)"}, 0));
         p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("inputDb", 1), "Pedal input", -12.f, 24.f, 0.f));
         p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("outputDb", 1), "Output", -24.f, 0.f, 0.f));
         p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("tone", 1), "Pedal tone", 1000.f, 10000.f, 5500.f));
+        p.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("cabinet", 1), "Cabinet", juce::StringArray{"Off", "British 4x12", "Vintage 4x12", "Modern 4x12"}, 0));
+        auto add = [&](const char* id, const char* label, float low, float high, float initial) {
+            p.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(id, 1), label, low, high, initial));
+        };
+        add("bass", "Bass", -12, 12, 0); add("middle", "Middle", -12, 12, 0); add("treble", "Treble", -12, 12, 0);
+        add("delayMs", "Delay time", 40, 1000, 320); add("feedback", "Delay feedback", 0, .65f, .3f);
+        add("delayMix", "Delay level", 0, .5f, 0); add("reverbMix", "Reverb level", 0, .5f, 0); add("room", "Room size", 0, .85f, .45f);
         return p;
     }
     const juce::String getName() const override { return "NeuralAudioFX"; }
     bool acceptsMidi() const override { return false; }
     bool producesMidi() const override { return false; }
-    double getTailLengthSeconds() const override { return 0; }
+    double getTailLengthSeconds() const override { return 16; }
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
     void setCurrentProgram(int) override {}
@@ -48,7 +63,9 @@ public:
         const juce::ScopedLock lock(controlLock);
         active.store(nullptr, std::memory_order_release);
         retained.clear(); sampleRate = rate; playbackRate.store(rate); prepared = true;
-        pedal.prepare(rate); currentEngine = -1; reportedLatency.store(128); setLatencySamples(128);
+        pedal.prepare(rate); rack.prepare(rate); master.reset(rate, .02); masterInitial = true;
+        for (auto& c : dryHistory) c.fill(0); dryCursor = 0;
+        currentEngine = -1; reportedLatency.store(128); setLatencySamples(128);
         loadLocked();
     }
     void releaseResources() override {
@@ -60,6 +77,8 @@ public:
         // JUCE calls this outside active rendering; both channels must reset together.
         if (auto* engines = active.load(std::memory_order_acquire)) for (auto& channel : engines->channels) channel->reset();
         pedal.reset();
+        rack.reset(); masterInitial = true;
+        for (auto& c : dryHistory) c.fill(0); dryCursor = 0;
     }
     void processBlock(juce::AudioBuffer<float>& audio, juce::MidiBuffer&) override { const bool dry = dryCompare.load(); process(audio, dry ? 0.f : mix->load(), dry); }
     void processBlockBypassed(juce::AudioBuffer<float>& audio, juce::MidiBuffer&) override { process(audio, 0.f, true); }
@@ -68,11 +87,23 @@ public:
         fillAudition(audio);
         inputPeak.store(audio.getMagnitude(0, audio.getNumSamples()));
         auto* engines = active.load(std::memory_order_acquire);
+        const bool dryOnly = bypass || amount == 0;
+        const auto latency = static_cast<size_t>(reportedLatency.load());
+        for (int i = 0; i < audio.getNumSamples(); ++i) {
+            const auto read = (dryCursor + dryHistory[0].size() - latency) % dryHistory[0].size();
+            for (int ch = 0; ch < juce::jmin(2, audio.getNumChannels()); ++ch) {
+                auto& c = dryHistory[static_cast<size_t>(ch)]; c[dryCursor] = audio.getSample(ch, i);
+                if (dryOnly) audio.setSample(ch, i, c[read]);
+            }
+            dryCursor = (dryCursor + 1) % dryHistory[0].size();
+        }
+        if (dryOnly != wasDry) { pedal.reset(); rack.reset(); if (engines) for (auto& channel : engines->channels) channel->reset(); wasDry = dryOnly; }
+        if (dryOnly) { finish(audio, bypass, 0); return; }
         const int selected = juce::roundToInt(engine->load());
-        if (selected != currentEngine) { pedal.reset(); if (engines) for (auto& channel : engines->channels) channel->reset(); currentEngine = selected; }
-        if (selected == 1) {
-            pedal.process(audio, drive->load(), amount, inputDb->load(), bypass ? 0.f : outputDb->load(), tone->load(), reportedLatency.load());
-            outputPeak.store(audio.getMagnitude(0, audio.getNumSamples())); return;
+        if (selected != currentEngine) { pedal.reset(); rack.reset(); if (engines) for (auto& channel : engines->channels) channel->reset(); currentEngine = selected; }
+        if (selected > 0) {
+            pedal.process(audio, drive->load(), amount, inputDb->load(), 0, tone->load(), reportedLatency.load(), selected == 2);
+            finish(audio, bypass, amount); return;
         }
         if (!engines) { pedal.process(audio, 0, 0, 0, 0, 5500, reportedLatency.load()); outputPeak.store(audio.getMagnitude(0, audio.getNumSamples())); return; }
         if (engines->fault.load()) { audio.clear(); return; }
@@ -82,7 +113,26 @@ public:
                 engines->fault.store(true); audio.clear(); return;
             }
         }
-        if (!bypass) audio.applyGain(juce::Decibels::decibelsToGain(outputDb->load()));
+        finish(audio, bypass, amount);
+    }
+    void finish(juce::AudioBuffer<float>& audio, bool bypass, float amount) noexcept {
+        const bool dry = bypass || amount == 0;
+        if (dry != wasDry) { rack.reset(); wasDry = dry; }
+        if (!dry) {
+            GuitarRack::Settings s;
+            s.cabinet = juce::roundToInt(rackValues[0]->load());
+            s.bass = rackValues[1]->load(); s.middle = rackValues[2]->load(); s.treble = rackValues[3]->load();
+            s.delayMs = rackValues[4]->load(); s.feedback = rackValues[5]->load(); s.delayMix = rackValues[6]->load();
+            s.reverbMix = rackValues[7]->load(); s.room = rackValues[8]->load();
+            rack.process(audio, s);
+        }
+        const float gain = bypass ? 1.f : juce::Decibels::decibelsToGain(outputDb->load());
+        if (masterInitial || bypass != wasBypassed) { master.setCurrentAndTargetValue(gain); masterInitial = false; }
+        master.setTargetValue(gain); wasBypassed = bypass;
+        for (int i = 0; i < audio.getNumSamples(); ++i) {
+            const float g = master.getNextValue();
+            for (int ch = 0; ch < audio.getNumChannels(); ++ch) audio.getWritePointer(ch)[i] *= g;
+        }
         outputPeak.store(audio.getMagnitude(0, audio.getNumSamples()));
     }
     struct Clip {
@@ -144,14 +194,14 @@ public:
         { const juce::ScopedLock lock(controlLock);
           if (std::abs(static_cast<double>(data["sample_rate"]) - sampleRate) > 0.5) { status = "Reference and session sample rates differ"; return; }
         }
-        for (auto pair : {std::make_pair("drive", a), std::make_pair("mix", b), std::make_pair("engine", 0.f), std::make_pair("inputDb", 0.f), std::make_pair("outputDb", 0.f)}) {
+        for (auto pair : {std::make_pair("drive", a), std::make_pair("mix", b), std::make_pair("engine", 0.f), std::make_pair("inputDb", 0.f), std::make_pair("outputDb", 0.f), std::make_pair("cabinet", 0.f), std::make_pair("bass", 0.f), std::make_pair("middle", 0.f), std::make_pair("treble", 0.f), std::make_pair("delayMix", 0.f), std::make_pair("reverbMix", 0.f)}) {
             auto* parameter = parameters.getParameter(pair.first);
             parameter->beginChangeGesture(); parameter->setValueNotifyingHost(parameter->convertTo0to1(pair.second)); parameter->endChangeGesture();
         }
     }
     juce::String modelStatus() const {
         const juce::ScopedLock lock(controlLock);
-        if (engine->load() > .5f) return "Pedal / 4x oversampling / " + juce::String(sampleRate, 0) + " Hz";
+        if (engine->load() > .5f) return (engine->load() > 1.5f ? "British amp DSP" : "Pedal DSP") + juce::String(" / 4x oversampling / ") + juce::String(sampleRate, 0) + " Hz";
         if (auto* engines = active.load(std::memory_order_acquire)) if (engines->fault.load()) return "Processing stopped; reload model";
         return status;
     }
@@ -189,6 +239,8 @@ private:
     }
     struct Engines { std::unique_ptr<nfx::BufferedProcessor> channels[2]; std::atomic<bool> fault{false}; };
     void loadLocked() {
+        // A rejected selection must never leave an unrelated previous model audible.
+        active.store(nullptr, std::memory_order_release);
         if (modelPath.isEmpty()) { active.store(nullptr, std::memory_order_release); status = "Choose a neural model"; reportedLatency.store(128); setLatencySamples(128); return; }
         if (retained.size() >= 32) { status = "Reload the plug-in before selecting more models"; return; }
         try {
@@ -202,7 +254,8 @@ private:
             retained.push_back(std::move(engines));
             // Retain previous engines until releaseResources: no deletion or refcounting on the audio thread.
             active.store(pointer, std::memory_order_release);
-            reportedLatency.store(latency); setLatencySamples(latency); status = juce::File(modelPath).getFileName() + " ready";
+            reportedLatency.store(latency); setLatencySamples(latency);
+            status = juce::String(pointer->channels[0]->effect()) + " / " + juce::String(sampleRate, 0) + " Hz / " + juce::String(latency) + " samples / " + juce::File(modelPath).getFileName();
         } catch (const std::exception& error) { status = "Could not load model: " + juce::String(error.what()); }
     }
     mutable juce::CriticalSection controlLock;
@@ -211,6 +264,11 @@ private:
     std::atomic<float>* drive{}; std::atomic<float>* mix{};
     std::atomic<float>* engine{}; std::atomic<float>* inputDb{}; std::atomic<float>* outputDb{}; std::atomic<float>* tone{};
     Pedal pedal; int currentEngine{-1}; std::atomic<int> reportedLatency{128};
+    GuitarRack rack;
+    juce::SmoothedValue<float> master; bool masterInitial{true}, wasDry{false}, wasBypassed{false};
+    const std::array<const char*, 9> rackIds{"cabinet", "bass", "middle", "treble", "delayMs", "feedback", "delayMix", "reverbMix", "room"};
+    std::array<std::atomic<float>*, 9> rackValues{};
+    std::array<std::array<float, 16384>, 2> dryHistory{}; size_t dryCursor{};
     std::atomic<Engines*> active{nullptr};
     std::vector<std::unique_ptr<Engines>> retained;
     juce::AudioFormatManager formats;

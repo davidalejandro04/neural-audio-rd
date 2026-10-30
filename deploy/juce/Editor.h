@@ -1,8 +1,8 @@
 #pragma once
 
 namespace palette {
-const juce::Colour background{0xff101619}, panel{0xff192226}, line{0xff2c393f};
-const juce::Colour text{0xffedf3ee}, muted{0xff9cacae}, green{0xffb7ed97}, orange{0xfff5ad70};
+const juce::Colour background{0xff111315}, panel{0xff1c1f21}, line{0xff363a3c};
+const juce::Colour text{0xfff4eee2}, muted{0xffa9aaa5}, green{0xffdcb875}, orange{0xffed8757};
 }
 
 class LabLook final : public juce::LookAndFeel_V4 {
@@ -17,6 +17,8 @@ public:
         setColour(juce::PopupMenu::highlightedBackgroundColourId, palette::line);
         setColour(juce::Slider::textBoxTextColourId, palette::text);
         setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+        setColour(juce::Slider::thumbColourId, palette::green);
+        setColour(juce::Slider::trackColourId, palette::green.darker(.5f));
         setColour(juce::ToggleButton::textColourId, palette::muted);
         setColour(juce::ToggleButton::tickColourId, palette::green);
     }
@@ -52,16 +54,33 @@ class Editor final : public juce::AudioProcessorEditor, private juce::Timer {
 public:
     explicit Editor(NeuralAudioFX& p) : AudioProcessorEditor(p), processor(p) {
         setLookAndFeel(&look);
-        for (auto* c : std::initializer_list<juce::Component*>{&drive, &mix, &load, &reference, &status, &samples, &open, &play, &stop, &dry, &loop, &sampleInfo, &engine, &inputGain, &outputGain, &tone, &crunch, &heavy}) addAndMakeVisible(c);
+        for (auto* c : std::initializer_list<juce::Component*>{&drive, &mix, &load, &reference, &status, &samples, &open, &play, &stop, &dry, &loop, &sampleInfo, &engine, &inputGain, &outputGain, &tone, &crunch, &heavy, &clean, &rhythm, &neural, &cabinet}) addAndMakeVisible(c);
         driveAttachment = std::make_unique<Attachment>(p.parameters, "drive", drive);
         mixAttachment = std::make_unique<Attachment>(p.parameters, "mix", mix);
         configureKnob(drive, "Drive"); configureKnob(mix, "Mix");
-        engine.addItem("Neural model", 1); engine.addItem("Pedal distortion (4x)", 2); engine.setComponentID("effectEngine");
+        engine.addItem("Neural preamp / loaded model", 1); engine.addItem("Pedal distortion / DSP 4x", 2); engine.addItem("British amp / DSP 4x", 3); engine.setComponentID("effectEngine");
         engineAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(p.parameters, "engine", engine);
         for (auto* s : {&inputGain, &outputGain, &tone}) { s->setSliderStyle(juce::Slider::LinearHorizontal); s->setTextBoxStyle(juce::Slider::TextBoxRight, false, 75, 26); }
         inputAttachment = std::make_unique<Attachment>(p.parameters, "inputDb", inputGain);
         outputAttachment = std::make_unique<Attachment>(p.parameters, "outputDb", outputGain);
         toneAttachment = std::make_unique<Attachment>(p.parameters, "tone", tone);
+        cabinet.addItemList({"Off / direct", "British 4x12 / focused", "Vintage 4x12 / warm", "Modern 4x12 / bright"}, 1);
+        cabinet.setComponentID("cabinet");
+        cabinetAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(p.parameters, "cabinet", cabinet);
+        for (size_t i = 0; i < rackSliders.size(); ++i) {
+            auto& slider = rackSliders[i]; addAndMakeVisible(slider);
+            slider.setName(rackNames[i]); slider.setComponentID(rackIds[i]);
+            slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+            slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 92, 22);
+            rackAttachments[i] = std::make_unique<Attachment>(p.parameters, rackIds[i], slider);
+            slider.setTextValueSuffix(i < 3 ? " dB" : i == 3 ? " ms" : "");
+            slider.setNumDecimalPlacesToDisplay(i < 3 ? 1 : i == 3 ? 0 : 2);
+            slider.textFromValueFunction = [i](double value) { return juce::String(value, i < 3 ? 1 : i == 3 ? 0 : 2) + (i < 3 ? " dB" : i == 3 ? " ms" : ""); };
+            slider.updateText();
+            slider.setDoubleClickReturnValue(true, i < 3 ? 0 : i == 3 ? 320 : i == 4 ? .3 : i == 7 ? .45 : 0);
+        }
+        configureKnob(inputGain, "Input"); configureKnob(outputGain, "Master");
+        inputGain.setDoubleClickReturnValue(true, 0); outputGain.setDoubleClickReturnValue(true, -9);
         inputGain.setTextValueSuffix(""); outputGain.setTextValueSuffix(""); tone.setTextValueSuffix("");
         for (auto* slider : {&inputGain, &outputGain}) {
             slider->textFromValueFunction = [](double value) { return (value > 0 ? "+" : "") + juce::String(value, 1) + " dB"; };
@@ -72,10 +91,12 @@ public:
         load.setButtonText("Choose model"); reference.setButtonText("Reference preset");
         open.setButtonText("Open WAV..."); play.setButtonText("Play sample"); stop.setButtonText("Stop"); dry.setButtonText("Dry compare");
         play.setComponentID("primary"); dry.setClickingTogglesState(true);
-        crunch.setButtonText("Crunch"); heavy.setButtonText("Heavy");
+        clean.setButtonText("01  Clean"); crunch.setButtonText("02  Crunch"); rhythm.setButtonText("03  Hard rock"); heavy.setButtonText("04  Sunset lead"); neural.setButtonText("05  Neural lead");
+        clean.setComponentID("presetClean"); crunch.setComponentID("presetCrunch"); rhythm.setComponentID("presetRock"); heavy.setComponentID("presetLead"); neural.setComponentID("presetNeural");
         samples.setComponentID("sampleSelect"); stop.setComponentID("sampleStop"); dry.setComponentID("dryCompare");
         loop.setButtonText("Loop"); loop.setComponentID("sampleLoop"); loop.setToggleState(true, juce::dontSendNotification);
         status.setColour(juce::Label::textColourId, palette::muted); status.setFont(juce::FontOptions(12.f));
+        status.setComponentID("modelStatus");
         status.setJustificationType(juce::Justification::centredRight);
         sampleInfo.setColour(juce::Label::textColourId, palette::muted); sampleInfo.setFont(juce::FontOptions(12.f));
         samples.setTextWhenNothingSelected("Select a dataset sample or open a WAV");
@@ -83,8 +104,8 @@ public:
         dry.setTooltip("Compare the dry input through the same latency buffer. Your Mix setting is retained.");
         play.setTooltip("Replace the live input with the selected sample while it plays. Click again to restart.");
         drive.setTooltip("Normalized distortion amount. Double-click to reset to 50%.");
-        mix.setTooltip("Blend dry and distorted audio. Double-click to reset to 100%.");
-        inputGain.setTooltip("Boost the clean guitar before pedal saturation. Applies to Pedal distortion.");
+        mix.setTooltip("Amp dry/wet blend; the model applies this once. At zero, the rack is bypassed. Double-click: 100%.");
+        inputGain.setTooltip("Boost before DSP saturation. Disabled for neural models to preserve their training input level.");
         tone.setTooltip("Pedal low-pass tone cutoff; lower values reduce high-frequency fizz.");
         outputGain.setTooltip("Output trim after the effect. Dry compare and host bypass audition the original level.");
         const juce::Component::SafePointer<Editor> safe(this);
@@ -96,52 +117,79 @@ public:
         dry.onClick = [safe] { if (safe) safe->processor.dryCompare.store(safe->dry.getToggleState()); };
         loop.onClick = [safe] { if (safe) safe->processor.looping.store(safe->loop.getToggleState()); };
         samples.onChange = [safe] { if (safe) safe->selectSample(); };
-        crunch.onClick = [safe] { if (safe) safe->setPedalPreset(.65f, 6.f, -9.f, 5500.f); };
-        heavy.onClick = [safe] { if (safe) safe->setPedalPreset(.90f, 12.f, -12.f, 4500.f); };
+        clean.onClick = [safe] { if (safe) safe->setRigPreset(0); };
+        crunch.onClick = [safe] { if (safe) safe->setRigPreset(1); };
+        rhythm.onClick = [safe] { if (safe) safe->setRigPreset(2); };
+        heavy.onClick = [safe] { if (safe) safe->setRigPreset(3); };
+        neural.onClick = [safe] { if (safe) safe->setRigPreset(4); };
+        neural.setTooltip("Use the currently loaded neural model with a lead rack. Load the high_gain export for the new preamp.");
+        cabinet.setTooltip("Algorithmic cabinet voicings, not recorded speaker impulse responses.");
         dry.setToggleState(processor.dryCompare.load(), juce::dontSendNotification);
         loop.setToggleState(processor.looping.load(), juce::dontSendNotification);
-        setSize(800, 790); loadLibrary(); timerCallback(); startTimerHz(30);
+        setSize(1100, 830); loadLibrary(); timerCallback(); startTimerHz(30);
     }
     ~Editor() override { stopTimer(); setLookAndFeel(nullptr); }
     void paint(juce::Graphics& g) override {
         g.fillAll(palette::background);
-        text(g, "NEURAL / AUDIO LAB", {28, 22, 480, 35}, 26, palette::text, true);
-        text(g, "ELECTRIC GUITAR / DISTORTION WORKBENCH", {29, 60, 520, 20}, 12, palette::muted, true);
-        g.setColour(palette::green.withAlpha(.12f)); g.fillRoundedRectangle(658, 28, 114, 26, 13);
-        text(g, "EFFECT PREVIEW", {665, 31, 104, 20}, 10, palette::green, true);
-        card(g, {24, 142, 752, 207}); card(g, {24, 363, 752, 90}); card(g, {24, 471, 752, 238});
-        text(g, "PEDAL INPUT", {44, 374, 200, 18}, 11, palette::muted, true);
-        text(g, "PEDAL TONE", {291, 374, 200, 18}, 11, palette::muted, true);
-        text(g, "OUTPUT", {538, 374, 200, 18}, 11, palette::muted, true);
-        text(g, "DRIVE", {57, 158, 180, 22}, 12, palette::orange, true, juce::Justification::centred);
-        text(g, "MIX", {278, 158, 180, 22}, 12, palette::green, true, juce::Justification::centred);
-        text(g, "Harmonic intensity", {57, 318, 180, 20}, 12, palette::muted, false, juce::Justification::centred);
-        text(g, "Dry / wet blend", {278, 318, 180, 20}, 12, palette::muted, false, juce::Justification::centred);
-        g.setColour(palette::line); g.drawVerticalLine(500, 163, 328);
-        text(g, "SIGNAL LEVEL", {528, 160, 220, 23}, 12, palette::muted, true);
-        meter(g, 211, "IN", inLevel); meter(g, 263, "OUT", outLevel);
-        text(g, processor.dryCompare.load() ? "LISTENING: DRY" : "LISTENING: PROCESSED", {528, 308, 220, 20}, 11,
-             processor.dryCompare.load() ? palette::orange : palette::green, true);
-        text(g, "SAMPLE BENCH", {43, 483, 250, 21}, 12, palette::muted, true);
-        waveform(g);
-        const auto* clip = processor.selectedSample();
-        if (clip) {
-            auto seconds = static_cast<double>(clip->audio.getNumSamples()) / clip->rate;
-            text(g, juce::String(seconds * processor.sampleProgress.load(), 2) + " / " + juce::String(seconds, 2) + " s", {594, 673, 160, 20}, 12, palette::muted, false, juce::Justification::centredRight);
+        text(g, "NEURAL AUDIO", {26, 16, 420, 28}, 24, palette::text, true);
+        text(g, "BRITISH HIGH GAIN  /  GUITAR RIG", {27, 47, 530, 20}, 11, palette::green, true);
+        text(g, "INPUT  >  AMP  >  CABINET  >  DELAY  >  REVERB", {590, 26, 482, 25}, 11, palette::muted, true, juce::Justification::centredRight);
+        card(g, {24, 176, 730, 247}); card(g, {770, 176, 306, 247});
+        text(g, "01 / AMPLIFIER", {44, 190, 340, 23}, 12, palette::green, true);
+        text(g, "GAIN & TONE", {550, 190, 180, 23}, 10, palette::muted, true, juce::Justification::centredRight);
+        const char* names[]{"DRIVE", "INPUT", "BASS", "MIDDLE", "TREBLE", "MASTER"};
+        for (int i = 0; i < 6; ++i) text(g, names[i], {39 + i * 118, 226, 112, 20}, 11, i == 0 ? palette::orange : palette::muted, true, juce::Justification::centred);
+        text(g, "AMP MIX", {44, 377, 75, 22}, 10, palette::muted, true);
+        text(g, "DSP TONE", {396, 377, 80, 22}, 10, palette::muted, true);
+        text(g, "02 / CABINET", {790, 190, 266, 23}, 12, palette::green, true);
+        // Vector speaker grille: this is part of the actual native editor.
+        g.setColour(palette::background); g.fillRoundedRectangle(790, 258, 122, 142, 5);
+        g.setColour(palette::line);
+        for (int x = 794; x < 909; x += 5) g.drawVerticalLine(x, 263, 395);
+        for (int y = 263; y < 397; y += 5) g.drawHorizontalLine(y, 794, 908);
+        for (int row = 0; row < 2; ++row) for (int col = 0; col < 2; ++col) {
+            auto r = juce::Rectangle<float>(800.f + col * 55.f, 275.f + row * 61.f, 46, 46);
+            g.setColour(palette::background.withAlpha(.8f)); g.fillEllipse(r);
+            g.setColour(palette::green.withAlpha(.4f)); g.drawEllipse(r, 1);
+            g.drawEllipse(r.reduced(9), 1);
         }
+        text(g, "4 x 12", {924, 265, 125, 25}, 22, palette::text, true);
+        text(g, "Closed-back voice", {924, 295, 134, 20}, 11, palette::muted);
+        text(g, "Algorithmic cabinet", {924, 318, 134, 20}, 10, palette::muted);
+        text(g, "Tight lows.", {924, 357, 130, 18}, 11, palette::green);
+        text(g, "Forward mids.", {924, 377, 130, 18}, 11, palette::green);
+        card(g, {24, 437, 402, 179}); card(g, {442, 437, 312, 179}); card(g, {770, 437, 306, 179});
+        text(g, "03 / TAPE-STYLE DELAY", {44, 449, 355, 22}, 12, palette::green, true);
+        const char* delayNames[]{"TIME", "FEEDBACK", "LEVEL"};
+        for (int i = 0; i < 3; ++i) text(g, delayNames[i], {45 + i * 124, 475, 112, 18}, 10, palette::muted, true, juce::Justification::centred);
+        text(g, "04 / ROOM REVERB", {462, 449, 270, 22}, 12, palette::green, true);
+        text(g, "LEVEL", {469, 475, 112, 18}, 10, palette::muted, true, juce::Justification::centred);
+        text(g, "SIZE", {610, 475, 112, 18}, 10, palette::muted, true, juce::Justification::centred);
+        text(g, "OUTPUT MONITOR", {790, 449, 266, 22}, 12, palette::muted, true);
+        meter(g, 505, "IN", inLevel); meter(g, 551, "OUT", outLevel);
+        text(g, processor.dryCompare.load() ? "DRY COMPARE / LATENCY ALIGNED" : "PROCESSED / LIVE SIGNAL PATH", {790, 582, 266, 18}, 10, palette::green, true);
+        card(g, {24, 630, 1052, 148});
+        text(g, "AUDITION", {44, 643, 100, 20}, 11, palette::green, true);
+        waveform(g);
         const bool clipping = outLevel > 1.f;
-        text(g, clipping ? "Output exceeds 0 dBFS - reduce input or output gain." : "Dry input -> selected effect -> output  /  Stop restores live input", {27, 754, 744, 20}, 12,
-             clipping ? palette::orange : palette::muted);
+        text(g, clipping ? "Output above 0 dBFS: lower Master." : "Stop restores live input. Dry compare bypasses the complete rig.", {28, 796, 550, 18}, 11, clipping ? palette::orange : palette::muted);
     }
     void resized() override {
-        load.setBounds(28, 95, 132, 32); reference.setBounds(170, 95, 150, 32); engine.setBounds(340, 95, 432, 32);
-        status.setBounds(27, 718, 744, 25);
-        drive.setBounds(60, 182, 174, 132); mix.setBounds(281, 182, 174, 132);
-        inputGain.setBounds(40, 402, 220, 32); tone.setBounds(287, 402, 220, 32); outputGain.setBounds(534, 402, 220, 32);
-        samples.setBounds(44, 513, 520, 34); open.setBounds(578, 513, 176, 34);
-        play.setBounds(44, 559, 130, 32); stop.setBounds(184, 559, 78, 32); loop.setBounds(270, 559, 75, 32); dry.setBounds(603, 559, 151, 32);
-        crunch.setBounds(356, 559, 104, 32); heavy.setBounds(470, 559, 104, 32);
-        sampleInfo.setBounds(43, 673, 547, 22);
+        engine.setBounds(28, 83, 420, 32); load.setBounds(462, 83, 140, 32); reference.setBounds(614, 83, 156, 32);
+        status.setBounds(782, 76, 290, 46); status.setJustificationType(juce::Justification::centredRight);
+        const std::array<juce::TextButton*, 5> presets{&clean, &crunch, &rhythm, &heavy, &neural};
+        for (int i = 0; i < 5; ++i) presets[static_cast<size_t>(i)]->setBounds(28 + i * 211, 132, 199, 30);
+        drive.setBounds(39, 247, 112, 116); inputGain.setBounds(157, 247, 112, 116);
+        for (int i = 0; i < 3; ++i) rackSliders[static_cast<size_t>(i)].setBounds(275 + i * 118, 247, 112, 116);
+        outputGain.setBounds(629, 247, 112, 116);
+        mix.setSliderStyle(juce::Slider::LinearHorizontal); mix.setTextBoxStyle(juce::Slider::TextBoxRight, false, 58, 24);
+        mix.setBounds(119, 374, 252, 28); tone.setBounds(476, 374, 254, 28);
+        cabinet.setBounds(790, 223, 266, 29);
+        for (int i = 0; i < 3; ++i) rackSliders[static_cast<size_t>(i + 3)].setBounds(45 + i * 124, 493, 112, 112);
+        rackSliders[6].setBounds(469, 493, 112, 112); rackSliders[7].setBounds(610, 493, 112, 112);
+        samples.setBounds(149, 638, 475, 30); open.setBounds(636, 638, 130, 30);
+        play.setBounds(44, 686, 132, 30); stop.setBounds(186, 686, 72, 30); loop.setBounds(268, 686, 70, 30); dry.setBounds(790, 638, 266, 30);
+        sampleInfo.setBounds(43, 741, 995, 23);
     }
 private:
     using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -162,13 +210,13 @@ private:
     }
     static void meter(juce::Graphics& g, int y, const juce::String& name, float value) {
         const float db = juce::Decibels::gainToDecibels(value, -60.f);
-        text(g, name, {528, y - 18, 60, 17}, 11, palette::muted, true);
-        text(g, juce::String(db, 1) + " dBFS", {623, y - 18, 125, 17}, 11, palette::muted, false, juce::Justification::centredRight);
-        g.setColour(palette::background); g.fillRoundedRectangle(528, static_cast<float>(y + 5), 220, 8, 4);
-        g.setColour(value > 1 ? palette::orange : palette::green); g.fillRoundedRectangle(528, static_cast<float>(y + 5), 220 * juce::jlimit(0.f, 1.f, (db + 60) / 60), 8, 4);
+        text(g, name, {790, y - 18, 60, 17}, 11, palette::muted, true);
+        text(g, juce::String(db, 1) + " dBFS", {931, y - 18, 125, 17}, 11, palette::muted, false, juce::Justification::centredRight);
+        g.setColour(palette::background); g.fillRoundedRectangle(790, static_cast<float>(y + 5), 266, 8, 4);
+        g.setColour(value > 1 ? palette::orange : palette::green); g.fillRoundedRectangle(790, static_cast<float>(y + 5), 266 * juce::jlimit(0.f, 1.f, (db + 60) / 60), 8, 4);
     }
     void waveform(juce::Graphics& g) const {
-        const juce::Rectangle<float> area(44, 606, 710, 57);
+        const juce::Rectangle<float> area(356, 681, 700, 48);
         g.setColour(palette::background); g.fillRoundedRectangle(area, 6);
         auto* clip = processor.selectedSample();
         if (!clip) { text(g, "Open a WAV to audition the distortion", area.toNearestInt(), 12, palette::muted, false, juce::Justification::centred); return; }
@@ -188,7 +236,7 @@ private:
         chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
             [safe, action](const juce::FileChooser& f) {
                 if (!safe || !f.getResult().existsAsFile()) return;
-                if (action == 0) safe->processor.chooseModel(f.getResult().getFullPathName());
+                if (action == 0) { safe->processor.chooseModel(f.getResult().getFullPathName()); safe->setParameter("engine", 0); }
                 else if (action == 1) safe->processor.applyReferencePreset(f.getResult());
                 else if (safe->processor.loadSample(f.getResult())) { safe->samples.setSelectedId(0, juce::dontSendNotification); safe->samples.setText(f.getResult().getFileName(), juce::dontSendNotification); }
             });
@@ -218,20 +266,26 @@ private:
         const auto& entry = sampleEntries[index];
         auto file = libraryRoot.getChildFile(entry["dry"].toString());
         if (!file.isAChildOf(libraryRoot) || !processor.loadSample(file)) return;
-        for (auto id : {"drive", "mix", "engine", "inputDb", "outputDb", "tone"}) {
-            const float value = entry.hasProperty(id) ? static_cast<float>(entry[id]) : (juce::String(id) == "tone" ? 5500.f : 0.f);
-            setParameter(id, value);
-        }
     }
+
     void setParameter(const char* id, float value) {
         if (!std::isfinite(value)) return;
         auto* param = processor.parameters.getParameter(id);
         param->beginChangeGesture(); param->setValueNotifyingHost(param->convertTo0to1(value)); param->endChangeGesture();
     }
-    void setPedalPreset(float driveValue, float input, float output, float cutoff) {
-        setParameter("engine", 1); setParameter("drive", driveValue); setParameter("mix", 1);
-        setParameter("inputDb", input); setParameter("outputDb", output); setParameter("tone", cutoff);
+    void setRigPreset(int index) {
+        const float drives[]{.02f, .38f, .72f, .88f, .85f};
+        setParameter("engine", index == 4 ? 0.f : index == 0 ? 1.f : 2.f);
+        setParameter("drive", drives[index]); setParameter("mix", 1);
+        setParameter("inputDb", index == 0 ? -9.f : index == 1 ? 0.f : 6.f);
+        setParameter("outputDb", index == 0 ? -3.f : -9.f); setParameter("tone", 6000);
+        setParameter("cabinet", index == 0 ? 2.f : 1.f);
+        setParameter("bass", index == 0 ? 0.f : -1.f); setParameter("middle", index >= 2 ? 3.f : 1.f); setParameter("treble", index >= 2 ? 1.f : 0.f);
+        setParameter("delayMs", index >= 3 ? 340.f : 120.f); setParameter("feedback", index >= 3 ? .32f : .15f);
+        setParameter("delayMix", index >= 3 ? .18f : 0.f); setParameter("reverbMix", index >= 3 ? .12f : .06f); setParameter("room", .45f);
         dry.setToggleState(false, juce::dontSendNotification); processor.dryCompare.store(false);
+        currentPreset = index; presetValues.clear();
+        for (auto* p : processor.getParameters()) presetValues.push_back(p->getValue());
     }
     void timerCallback() override {
         status.setText(processor.modelStatus(), juce::dontSendNotification);
@@ -246,20 +300,30 @@ private:
         play.setButtonText(processor.playing.load() ? "Restart sample" : "Play sample");
         const bool isPedal = processor.parameters.getRawParameterValue("engine")->load() > .5f;
         inputGain.setEnabled(isPedal); tone.setEnabled(isPedal);
+        bool matches = presetValues.size() == static_cast<size_t>(processor.getParameters().size());
+        if (matches) for (int i = 0; i < processor.getParameters().size(); ++i)
+            matches = matches && std::abs(processor.getParameters()[i]->getValue() - presetValues[static_cast<size_t>(i)]) < 1e-5f;
+        const std::array<juce::TextButton*, 5> presets{&clean, &crunch, &rhythm, &heavy, &neural};
+        for (int i = 0; i < 5; ++i) presets[static_cast<size_t>(i)]->setToggleState(matches && i == currentPreset, juce::dontSendNotification);
         repaint();
     }
     NeuralAudioFX& processor;
     LabLook look;
     juce::Slider drive, mix, inputGain, outputGain, tone;
-    juce::TextButton load, reference, open, play, stop, dry, crunch, heavy;
+    juce::TextButton load, reference, open, play, stop, dry, crunch, heavy, clean, rhythm, neural;
     juce::ToggleButton loop;
-    juce::ComboBox samples, engine;
+    juce::ComboBox samples, engine, cabinet;
+    const std::array<const char*, 8> rackIds{"bass", "middle", "treble", "delayMs", "feedback", "delayMix", "reverbMix", "room"};
+    const std::array<const char*, 8> rackNames{"Bass", "Middle", "Treble", "Time", "Feedback", "Delay level", "Reverb level", "Size"};
+    std::array<juce::Slider, 8> rackSliders;
+    std::array<std::unique_ptr<Attachment>, 8> rackAttachments;
     juce::Label status, sampleInfo;
     std::unique_ptr<Attachment> driveAttachment, mixAttachment, inputAttachment, outputAttachment, toneAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> engineAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> engineAttachment, cabinetAttachment;
     std::unique_ptr<juce::FileChooser> chooser;
     juce::File libraryRoot;
     juce::Array<juce::var> sampleEntries;
     juce::TooltipWindow tooltips{this, 700};
     float inLevel{}, outLevel{};
+    int currentPreset{-1}; std::vector<float> presetValues;
 };

@@ -62,6 +62,12 @@ Processor::Processor(const std::filesystem::path& model) : env_(createEnvironmen
     auto rate = metadata.LookupCustomMetadataMapAllocated("neural_fx_sample_rate", allocator);
     if (!rate) throw std::runtime_error("Missing model sample-rate metadata; re-export with the current exporter");
     rate_ = std::stoi(rate.get());
+    auto effect = metadata.LookupCustomMetadataMapAllocated("neural_fx_effect", allocator);
+    if (effect) effect_ = effect.get();
+    auto order = metadata.LookupCustomMetadataMapAllocated("neural_fx_control_order", allocator);
+    if (order && std::string(order.get()) != "drive,mix") throw std::runtime_error("Unsupported control order");
+    auto mixContract = metadata.LookupCustomMetadataMapAllocated("neural_fx_mix_contract", allocator);
+    if (mixContract && std::string(mixContract.get()) != "output_already_mixed") throw std::runtime_error("Unsupported mix contract");
     if (rate_ < 8000 || rate_ > 384000) throw std::runtime_error("Unsupported model sample rate");
     auto createSlots = [&](bool input, std::vector<Slot>& slots, std::vector<Ort::Value>& values, std::vector<const char*>& names) {
         const size_t count = input ? session_.GetInputCount() : session_.GetOutputCount();

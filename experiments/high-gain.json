@@ -1,0 +1,20 @@
+{
+  "experiment": "synthetic_british_high_gain_v2_zero_preserving",
+  "seed": 7319,
+  "data_seed": 62044,
+  "data": {
+    "effect": "high_gain", "source_profile": "guitar_plucks", "sample_rate": 48000, "samples": 8192,
+    "sources": {"train": 32, "valid": 8, "test": 12},
+    "controls": {
+      "train": [[0,1],[0.2,1],[0.4,1],[0.6,1],[0.8,1],[1,1],[0.2,0.5],[0.6,0.5],[1,0.5]],
+      "valid": [[0.1,1],[0.5,1],[0.9,1],[0.7,0.65]],
+      "test": [[0.3,1],[0.7,1],[0.95,1],[0.8,0.6],[0.5,0]]
+    }
+  },
+  "model": {"name":"conditional_tcn","channels":16,"dilations":[1,2,4,8,16,32],"fir_taps":129,"wet_only_conditioning":true,"zero_preserving":true},
+  "suite": ["conditional_tcn"],
+  "training": {"epochs":120,"segment_samples":1024,"batch_size":16,"learning_rate":0.001,"spectral_weight":0.02},
+  "evaluation": {"block_sizes":[64,128,256,512],"audio_examples":6},
+  "gates": {"max_esr":0.1,"identity_esr_ratio":0.8,"stream_max_error":0.00001,"export_max_error":0.00001,"p99_budget_fraction":0.7},
+  "scope": "Single-seed synthetic cascaded preamp study; not a Marshall or artist capture. Cabinet, delay and reverb are separate DSP. No real recordings in training."
+}

@@ -211,15 +211,19 @@ def package_preview(validation, output, build="build/native", reference_preset=N
                 raise ValueError("Sample pack checksum/path mismatch")
         shutil.copytree(samples, output / "samples")
     pedal_default = bool(samples and (Path(samples) / "manifest.json").exists() and any(c.get("engine") == 1 for c in library["clips"]))
-    (output / "Launch-NeuralFX.cmd").write_text('@echo off\nsetlocal\nset "NEURAL_FX_MODEL=%~dp0models\\conditional_tcn-128.onnx"\nset "NEURAL_FX_SAMPLES=%~dp0samples"\nset "NEURAL_FX_PEDAL=' + ('1' if pedal_default else '') + '"\n"%~dp0Standalone\\NeuralAudioFX.exe"\n', encoding="utf-8")
+    high_gain = any(row["export"].get("effect") == "high_gain" for row in evidence["blocks"])
+    (output / "Launch-NeuralFX.cmd").write_text('@echo off\nsetlocal\nset "NEURAL_FX_MODEL=%~dp0models\\conditional_tcn-128.onnx"\nset "NEURAL_FX_SAMPLES=%~dp0samples"\nset "NEURAL_FX_PEDAL=' + ('1' if pedal_default and not high_gain else '') + '"\nset "NEURAL_FX_RIG=' + ('1' if high_gain else '') + '"\n"%~dp0Standalone\\NeuralAudioFX.exe"\n', encoding="utf-8")
     (output / "README.txt").write_text(
         "NeuralAudioFX local research preview\n\nRun Launch-NeuralFX.cmd to open the standalone app with selectable neural and pedal effects.\n"
         "Set audio-device/session rate to 48000 Hz. Drive and Mix are normalized 0..1.\n"
         "Choose Pedal distortion (4x) for the conventional oversampled guitar effect, or Neural model for learned inference.\n"
-        "Crunch/Heavy configure the pedal. Pedal input and tone apply to that mode; Output trims either effect.\n"
+        "Clean, Crunch, Hard rock and Sunset lead configure DSP rigs. Neural lead uses the currently loaded model.\n"
+        "British/Vintage/Modern 4x12 cabinets are algorithmic filters, not captured IRs. EQ, delay and room reverb follow the amp.\n"
+        "Input and DSP tone are disabled for neural inference; Master trims the complete rig. Amp mix is applied once by the model; at zero the rack is bypassed.\n"
+        "High-gain models are trained on a synthetic preamp, not a Marshall/artist capture. Legacy model results remain separate.\n"
         "Select a dataset sample and press Play; Loop repeats it, Dry compare auditions the dry input. Open WAV accepts your own mono/stereo audio (up to 60 seconds).\n"
         "Synthetic packs include DSP targets in samples/*-wet.wav. Guitar DI packs contain dry recordings with effect applied live. Input is replaced only while sample playback is active.\n"
-        "Choose model loads another current export outside audio processing. Load reference preset applies inferred controls.\n"
+        "Choose model selects neural inference and reports effect/rate/latency. A failed load falls back to delayed dry audio. Reference presets reset the post effects.\n"
         "The buffered plugin reports one model block of latency (128 samples for the default model).\n"
         "demo-input.wav and demo-rendered.wav are nine-second algorithmic test notes, not real guitar recordings.\n"
         "For a DAW, copy the entire VST3/NeuralAudioFX.vst3 folder into a host-scanned VST3 location and rescan.\n"
@@ -349,16 +353,19 @@ def native_validate(checkpoint, executable, output, block_sizes=(64, 128, 256, 5
             env = dict(os.environ)
             # Plugin validation is for a fixed exported block; use the first checked model.
             env["NEURAL_FX_MODEL"] = str((output / str(block_sizes[0]) / "model.onnx").resolve())
-            reference = stream(model, torch.from_numpy(x)[None, None], torch.tensor([[0.5, 1.0]]), (block_sizes[0],)).numpy().ravel()
-            delayed = np.concatenate((np.zeros(block_sizes[0], np.float32), reference))[:len(x)]
-            for host_block in (17, 64, 113, 256, 512):
-                path = output / f"plugin-{host_block}.f32"
-                log = _run([Path(host_check).resolve(), Path(plugin).resolve(), output / "host-input.f32", path, host_block], output / f"plugin-{host_block}.log", env)
-                values = np.fromfile(path, dtype=np.float32)
-                if values.shape != delayed.shape:
-                    raise ValueError("Plugin host output length mismatch")
-                error = float(np.max(np.abs(values - delayed)))
-                report["host_plugin_checks"].append({"host_block": host_block, "max_error": error, "passed": error <= tolerance})
+            env["NEURAL_FX_PEDAL"] = env["NEURAL_FX_RIG"] = ""
+            for drive, mix in ((0.5, 1.0), (0.85, 0.35), (0.85, 0.0)):
+                reference = stream(model, torch.from_numpy(x)[None, None], torch.tensor([[drive, mix]]), (block_sizes[0],)).numpy().ravel()
+                delayed = np.concatenate((np.zeros(block_sizes[0], np.float32), reference))[:len(x)]
+                for host_block in (17, 64, 113, 256, 512):
+                    name = f"plugin-{host_block}-{drive}-{mix}"
+                    path = output / f"{name}.f32"
+                    _run([Path(host_check).resolve(), Path(plugin).resolve(), output / "host-input.f32", path, host_block, drive, mix], output / f"{name}.log", env)
+                    values = np.fromfile(path, dtype=np.float32)
+                    if values.shape != delayed.shape:
+                        raise ValueError("Plugin host output length mismatch")
+                    error = float(np.max(np.abs(values - delayed)))
+                    report["host_plugin_checks"].append({"host_block": host_block, "drive": drive, "mix": mix, "max_error": error, "passed": error <= tolerance})
         report["parity_passed"] = all(row["parity_passed"] for row in report["blocks"]) and all(row["passed"] for row in report["host_plugin_checks"])
         report["native_screening_passed"] = all(row["benchmark"]["screening_passed"] for row in report["blocks"])
         report["remaining"] = ["sustained paced scheduling check", "ONNX Runtime internal allocation audit", "Ableton/Audacity host checks", "human listening and real captures"]
