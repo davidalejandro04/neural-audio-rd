@@ -1,4 +1,4 @@
-# Neural Audio R&D
+# Neural Audio Prototype
 
 A native guitar rig and a reproducible neural-audio research pipeline. The **v5 hard-rock preview** adds a British high-gain amp, three 4x12 cabinet voicings, three-band EQ, delay, room reverb, and five gain/lead presets. A separately trained high-gain TCN is available alongside the oversampled DSP engines.
 
